@@ -1,13 +1,14 @@
 #include <Wire.h>
 #define STATUS_LED 13
-const byte I2C_ADDRESS = 42;
+#define I2C_ADDRESS 42
+#define DMX_ADDRESS 100
 volatile uint8_t VALUE;
 volatile uint8_t DMX[4];
 
 #define USE_HSV
 #include <WS2812.h>
 
-#define LED_COUNT 1800
+#define LED_COUNT 300
 #define LED_PIN 6
 
 WS2812 LED(LED_COUNT);
