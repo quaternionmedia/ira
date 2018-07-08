@@ -1,8 +1,7 @@
 #include <Wire.h>
 #define STATUS_LED 13
 #define I2C_ADDRESS 42
-#define DMX_ADDRESS 100
-volatile uint8_t VALUE;
+
 volatile uint8_t DMX[4];
 
 #define USE_HSV
@@ -19,6 +18,8 @@ cRGB last;
 #define EYESIZE 10
 int position = 0;
 
+#include <cos_fix.h>
+
 void wash(cRGB color) {
   for (int i = 0; i < LED_COUNT; i++)
   {
@@ -34,8 +35,8 @@ void cylon(cRGB color) {
   dim.g = int(color.g / 10);
   dim.b = int(color.b / 10);
   LED.set_crgb_at(position, dim);
-  for (int i = 1; i <= EYESIZE-2; i++) {
-    LED.set_crgb_at((position+i) % LED_COUNT, color);
+  for (int i = 1; i <= EYESIZE - 2; i++) {
+    LED.set_crgb_at((position + i) % LED_COUNT, color);
   }
   LED.set_crgb_at((position + EYESIZE - 1 ) % LED_COUNT, dim);
   LED.set_crgb_at((position - 1) % LED_COUNT, black);
@@ -45,51 +46,83 @@ void cylon(cRGB color) {
   //delay(DELAY);
 }
 
-void rainbow(cRGB color) {
+void staticRainbow(cRGB color) {
+
   for (int i = 0; i < LED_COUNT; i++) {
-    LED.set_crgb_at(i, { byte(255*sin(2*PI*i/LED_COUNT)), byte(255*cos(2*PI*i/LED_COUNT)), byte(255*sin((2*PI*i+128)/LED_COUNT)) });
+    LED.set_crgb_at(i, { byte(255 * sin_fix(2 * PI*i / LED_COUNT)),
+                         byte(255 * cos_fix(2 * PI*i / LED_COUNT)),
+                         byte(255 * sin_fix((2 * PI * i + 128) / LED_COUNT))
+                       });
   }
   LED.sync();
 }
+
+void rainbow(cRGB color) {
+  for (int i = 0; i < LED_COUNT; i++) {
+    LED.set_crgb_at(i, {(color.g + position) % 256, (color.r + position) % 256, (color.b - position) % 256 }) ;
+  }
+  LED.sync();
+  position = (position + 1 ) % LED_COUNT;
+}
+
+void rain(cRGB color) {
+  for (int i = 0; i < LED_COUNT; i++) {
+    uint8_t scalar = byte(255 * sin(cos(i ^ 2) + sin(i)));
+    LED.set_crgb_at((i + position) % LED_COUNT, {byte(color.g * scalar), byte(color.r * scalar), byte(color.b * scalar)});
+  }
+  LED.sync();
+  position = (position - 1 ) % LED_COUNT;
+}
+
+void sparkle(cRGB color) {
+
+  for (int i = 0; i < LED_COUNT; i++) {
+    uint8_t scalar = byte(255 * sin(cos(i ^ 2) + sin(i)));
+    LED.set_crgb_at(i, {byte(color.g * scalar), byte(color.r * scalar), byte(color.b * scalar)});
+  }
+  LED.sync();
+  position = (position - 1 ) % LED_COUNT;
+}
+
+void newData(int n) {
+  for (int i = 0; i < n; i++) {
+    DMX[i] = Wire.read();
+  }
+  //  Serial.write(DMX, 4);
+}
+
 
 void setup() {
   pinMode(13, OUTPUT);
   Wire.begin(I2C_ADDRESS);
   Wire.onReceive(newData);
   Serial.begin(9600);
-   while (!Serial) {
+  while (!Serial) {
   }
   LED.setOutput(LED_PIN);
-
-}
-
-void newData(int n) {
-  for (int i = 0; i < n; i++) {
-    DMX[i] = Wire.read();
-    
-  }
-//  Serial.write(DMX, 4);
-  
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
   analogWrite(STATUS_LED, DMX[0]);
   cRGB c = { DMX[2], DMX[1], DMX[3] };
-  switch (DMX[0]) {
-    case 0:
-      // pSerial.send()
-      wash(c);
-      break;
-    case 1:
-      cylon(c);
-      break;
-    case 2:
-      rainbow(c);
-      break;
-    default:
-//      error();
-      break;
-  }
-  
+  if (DMX[0] < 25) {
+    wash(c);
+  } else if (DMX[0] >= 25 && DMX[0] < 51) {
+    cylon(c);
+  } else if (DMX[0] >= 51 && DMX[0] < 76) {
+    staticRainbow(c);
+  } else if (DMX[0] >= 76 && DMX[0] < 102) {
+    rainbow(c);
+  } else if (DMX[0] >= 102 && DMX[0] < 127) {
+    rain(c);
+  } else if (DMX[0] >= 127 && DMX[0] < 153) {
+    sparkle(c);
+  } else if (DMX[0] >= 153 && DMX[0] < 178) {
+  } else if (DMX[0] >= 178 && DMX[0] < 204) {
+  } else if (DMX[0] >= 204 && DMX[0] < 229) {
+  } else if (DMX[0] >= 229 && DMX[0] < 255) {
+  } // else {error();}
+
+
 }
