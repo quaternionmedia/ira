@@ -2,26 +2,29 @@
 #include <digitalWriteFast.h>
 
 #include <DMXSerial.h>
-#define PACKET_LEN 4
+
 #define DMX_ADDRESS 100
 #define DMX_CHANNELS 6
 
 #define LED 13
-#define DELAY 0
+
 const byte I2C_ADDRESS = 42;
-volatile uint8_t VALUE;
+//volatile uint8_t VALUE;
 
 uint8_t DMX_PACKET[DMX_CHANNELS] = {0, 1, 2, 3, 4, 5};
 uint8_t DMX_LAST[DMX_CHANNELS];
+
 void setup() {
   pinModeFast(13, OUTPUT);
+
+  Wire.setClock(400000);
   Wire.begin();
 
   DMXSerial.init(DMXReceiver);
 }
 
 void readDMX() {
-  for (int i = 0; i < PACKET_LEN; i++) {
+  for (int i = 0; i < DMX_CHANNELS; i++) {
     DMX_PACKET[i] = DMXSerial.read(i + DMX_ADDRESS);
   }
 }
@@ -32,10 +35,11 @@ void sendPacket() {
   while (Wire.endTransmission()) {
   }
 }
+
 void loop() {
 
-//  VALUE += 1;
-//  VALUE %= 256;
+  //  VALUE += 1;
+  //  VALUE %= 256;
   //  DMX_PACKET[0] = VALUE;
 
   readDMX();

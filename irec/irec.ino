@@ -24,15 +24,15 @@ int position = 0;
 void positionIncrement() {
   if (SPEED < 64) {
     position = (position - (64 - SPEED)) % LED_COUNT;
-  } else if (SPEED < 128) {
+  } else if (SPEED >= 64 && SPEED < 128) {
     position = (position - 1 ) % LED_COUNT;
     delay(SPEED - 64);
   } else if (SPEED == 128) {
     //freeze
-  } else if (SPEED < 192) {
+  } else if (SPEED > 128 && SPEED < 192) {
     position = (position + 1 ) % LED_COUNT;
     delay(192 - SPEED);
-  } else {
+  } else if (SPEED >= 192) {
     position = (position + (SPEED - 192)) % LED_COUNT;
   }
 }
@@ -52,10 +52,10 @@ void cylon(cRGB color) {
   dim.g = int(color.g / 10);
   dim.b = int(color.b / 10);
   LED.set_crgb_at(position, dim);
-  for (int i = 1; i <= EYESIZE - 2; i++) {
+  for (int i = 1; i <= EYESIZE; i++) {
     LED.set_crgb_at((position + i) % LED_COUNT, color);
   }
-  LED.set_crgb_at((position + EYESIZE - 1 ) % LED_COUNT, dim);
+  LED.set_crgb_at((position + EYESIZE ) % LED_COUNT, dim);
   LED.set_crgb_at((position - 1) % LED_COUNT, black);
 
   LED.sync();
@@ -69,7 +69,7 @@ void staticRainbow(cRGB color) {
     LED.set_crgb_at(i, { byte(color.g * (1 + sin(2 * PI*i / LED_COUNT)) / 2),
                          byte(color.r * (1 + cos(2 * PI*i / LED_COUNT)) / 2),
                          byte(color.b * (1 + sin((2 * PI * i + 128)) / LED_COUNT)) / 2
-                             });
+                       });
   }
   LED.sync();
 }
@@ -103,9 +103,9 @@ void rain(cRGB color) {
 }
 
 void sparkle(cRGB color) {
-
+  //  int t = millis()/(256 - SPEED);
   for (int i = 0; i < LED_COUNT; i++) {
-    uint8_t scalar = byte(255 * sin(cos(i ^ 2) + sin(i)));
+    uint8_t scalar = byte(255 * (1 + sin_fix(position + 2 * PI * i / LED_COUNT)) / 2);
     LED.set_crgb_at(i, {
       byte(color.g * scalar),
       byte(color.r * scalar),
@@ -126,6 +126,7 @@ void newData(int n) {
 
 void setup() {
   pinMode(13, OUTPUT);
+  Wire.setClock(400000);
   Wire.begin(I2C_ADDRESS);
   Wire.onReceive(newData);
   Serial.begin(9600);
@@ -159,6 +160,6 @@ void loop() {
   } else if (DMX[0] >= 229 && DMX[0] < 255) {
   } // else {error();}
 
-  positionIncrement();
-
+  //  positionIncrement();
+  position += 1;
 }
