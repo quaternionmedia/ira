@@ -1,0 +1,10 @@
+Reference, Value, Footprint, Datasheet
+"U2","MAX485E","",""
+"U1","6N136","Housings_DIP:DIP-8_W7.62mm",""
+"R3","100","",""
+"R1","1k","",""
+"R2","1k","",""
+"R4","1k","",""
+"XA1","Arduino_Nano_Socket","",""
+"XA2","Arduino_Mega2560_Shield","",""
+"J1","RPi_GPIO","",""
