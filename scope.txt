@@ -1,0 +1,11 @@
+single strand of WS2813
+1 power supply
+Power connectors (XT60)
+data connectors
+power wires
+data wire (with resistor)
+remote control
+housing for electronics
+Arduino nano
+IR receiver
+Breadboard
