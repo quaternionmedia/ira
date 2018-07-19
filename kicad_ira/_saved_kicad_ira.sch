@@ -1,0 +1,278 @@
+EESchema Schematic File Version 2
+LIBS:power
+LIBS:device
+LIBS:transistors
+LIBS:conn
+LIBS:linear
+LIBS:regul
+LIBS:74xx
+LIBS:cmos4000
+LIBS:adc-dac
+LIBS:memory
+LIBS:xilinx
+LIBS:microcontrollers
+LIBS:dsp
+LIBS:microchip
+LIBS:analog_switches
+LIBS:motorola
+LIBS:texas
+LIBS:intel
+LIBS:audio
+LIBS:interface
+LIBS:digital-audio
+LIBS:philips
+LIBS:display
+LIBS:cypress
+LIBS:siliconi
+LIBS:opto
+LIBS:atmel
+LIBS:contrib
+LIBS:valves
+LIBS:arduino
+LIBS:RPi_Zero_pHat_Template-cache
+LIBS:kicad_ira-cache
+EELAYER 25 0
+EELAYER END
+$Descr A4 11693 8268
+encoding utf-8
+Sheet 1 1
+Title ""
+Date ""
+Rev ""
+Comp ""
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L MAX485E U2
+U 1 1 5B499AC2
+P 5600 4000
+F 0 "U2" H 5360 4450 50  0000 C CNN
+F 1 "MAX485E" H 5630 4450 50  0000 L CNN
+F 2 "" H 5600 3300 50  0001 C CNN
+F 3 "" H 5600 4050 50  0001 C CNN
+	1    5600 4000
+	1    0    0    -1  
+$EndComp
+$Comp
+L 6N136 U1
+U 1 1 5B499B75
+P 4550 4050
+F 0 "U1" H 4350 4350 50  0000 L CNN
+F 1 "6N136" H 4550 4350 50  0000 L CNN
+F 2 "Housings_DIP:DIP-8_W7.62mm" H 4350 3750 50  0001 L CIN
+F 3 "" H 4550 4050 50  0001 L CNN
+	1    4550 4050
+	1    0    0    -1  
+$EndComp
+$Comp
+L R R3
+U 1 1 5B499BF8
+P 4750 4850
+F 0 "R3" V 4830 4850 50  0000 C CNN
+F 1 "100" V 4750 4850 50  0000 C CNN
+F 2 "" V 4680 4850 50  0001 C CNN
+F 3 "" H 4750 4850 50  0001 C CNN
+	1    4750 4850
+	0    -1   -1   0   
+$EndComp
+$Comp
+L R R1
+U 1 1 5B49A09B
+P 4350 4850
+F 0 "R1" V 4430 4850 50  0000 C CNN
+F 1 "1k" V 4350 4850 50  0000 C CNN
+F 2 "" V 4280 4850 50  0001 C CNN
+F 3 "" H 4350 4850 50  0001 C CNN
+	1    4350 4850
+	0    -1   -1   0   
+$EndComp
+$Comp
+L R R2
+U 1 1 5B49A0C9
+P 4350 5250
+F 0 "R2" V 4430 5250 50  0000 C CNN
+F 1 "1k" V 4350 5250 50  0000 C CNN
+F 2 "" V 4280 5250 50  0001 C CNN
+F 3 "" H 4350 5250 50  0001 C CNN
+	1    4350 5250
+	0    -1   -1   0   
+$EndComp
+$Comp
+L R R4
+U 1 1 5B49A0F2
+P 4750 5250
+F 0 "R4" V 4830 5250 50  0000 C CNN
+F 1 "1k" V 4750 5250 50  0000 C CNN
+F 2 "" V 4680 5250 50  0001 C CNN
+F 3 "" H 4750 5250 50  0001 C CNN
+	1    4750 5250
+	0    -1   -1   0   
+$EndComp
+$Comp
+L VAC #PWR01
+U 1 1 5B49A1F8
+P 3900 4350
+F 0 "#PWR01" H 3900 4250 50  0001 C CNN
+F 1 "VAC" H 3900 4600 50  0000 C CNN
+F 2 "" H 3900 4350 50  0001 C CNN
+F 3 "" H 3900 4350 50  0001 C CNN
+	1    3900 4350
+	1    0    0    -1  
+$EndComp
+$Comp
+L AC #PWR02
+U 1 1 5B49A24B
+P 3900 4700
+F 0 "#PWR02" H 3900 4600 50  0001 C CNN
+F 1 "AC" H 3900 4950 50  0000 C CNN
+F 2 "" H 3900 4700 50  0001 C CNN
+F 3 "" H 3900 4700 50  0001 C CNN
+	1    3900 4700
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR03
+U 1 1 5B49A277
+P 4050 5000
+F 0 "#PWR03" H 4050 4750 50  0001 C CNN
+F 1 "GND" H 4050 4850 50  0000 C CNN
+F 2 "" H 4050 5000 50  0001 C CNN
+F 3 "" H 4050 5000 50  0001 C CNN
+	1    4050 5000
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4050 4700 4850 4700
+Wire Wire Line
+	3900 4350 4200 4350
+Wire Wire Line
+	4200 4350 4200 4850
+Wire Wire Line
+	4850 4700 4850 4250
+Wire Wire Line
+	4850 4250 5050 4250
+Wire Wire Line
+	5050 4250 5050 4100
+Wire Wire Line
+	5050 4100 5200 4100
+NoConn ~ 5200 3900
+NoConn ~ 5600 3500
+$Comp
+L Arduino_Nano_Socket XA1
+U 1 1 5B49A37C
+P 2750 2150
+F 0 "XA1" V 2850 2150 60  0000 C CNN
+F 1 "Arduino_Nano_Socket" V 2650 2150 60  0000 C CNN
+F 2 "" H 4550 5900 60  0001 C CNN
+F 3 "" H 4550 5900 60  0001 C CNN
+	1    2750 2150
+	1    0    0    -1  
+$EndComp
+$Comp
+L Arduino_Mega2560_Shield XA2
+U 1 1 5B49A445
+P 8750 3800
+F 0 "XA2" V 8850 3800 60  0000 C CNN
+F 1 "Arduino_Mega2560_Shield" V 8650 3800 60  0000 C CNN
+F 2 "" H 9450 6550 60  0001 C CNN
+F 3 "" H 9450 6550 60  0001 C CNN
+	1    8750 3800
+	1    0    0    -1  
+$EndComp
+$Comp
+L RPi_GPIO J1
+U 1 1 5B49A51E
+P 1150 5150
+F 0 "J1" H 1900 5400 60  0000 C CNN
+F 1 "RPi_GPIO" H 1900 5300 60  0000 C CNN
+F 2 "" H 1150 5150 60  0000 C CNN
+F 3 "" H 1150 5150 60  0000 C CNN
+	1    1150 5150
+	1    0    0    -1  
+$EndComp
+Text Notes 5350 1950 0    60   ~ 0
+Textual Explanation
+Wire Wire Line
+	4050 1250 7700 1250
+Wire Wire Line
+	7700 1250 7700 1050
+Wire Wire Line
+	7700 1050 8500 1050
+Wire Wire Line
+	8500 1050 8500 1200
+Wire Bus Line
+	6700 2300 6700 5900
+Entry Wire Line
+	6700 3100 6800 3200
+Entry Wire Line
+	7050 2700 7150 2800
+Entry Wire Line
+	6700 2750 6800 2850
+Entry Wire Line
+	6700 2650 6800 2750
+Entry Wire Line
+	6700 2500 6800 2600
+Wire Wire Line
+	6800 2600 7450 2600
+Wire Wire Line
+	7450 2600 7450 2550
+Wire Wire Line
+	7450 2450 7000 2450
+Wire Wire Line
+	7000 2450 7000 2750
+Wire Wire Line
+	7000 2750 6800 2750
+Entry Bus Bus
+	6700 2300 6800 2400
+Entry Bus Bus
+	6350 2300 6450 2400
+Wire Wire Line
+	4050 5000 4200 5000
+Wire Wire Line
+	4200 5000 4200 5250
+Wire Wire Line
+	4500 5250 4600 5250
+Wire Wire Line
+	4900 5250 4900 4850
+Wire Wire Line
+	4600 4850 4500 4850
+Wire Wire Line
+	4500 4850 4500 4400
+Wire Wire Line
+	4500 4400 4250 4400
+Wire Wire Line
+	4250 4400 4250 4150
+Wire Wire Line
+	4050 2150 4850 2150
+Wire Wire Line
+	4850 2150 4850 3850
+Wire Wire Line
+	4850 3950 5200 3950
+Wire Wire Line
+	5200 3950 5200 4000
+Wire Wire Line
+	7450 1850 6100 1850
+Wire Wire Line
+	6100 1850 6100 1650
+Wire Wire Line
+	6100 1650 5150 1650
+Wire Wire Line
+	5150 1650 5150 1450
+Wire Wire Line
+	5150 1450 4050 1450
+Wire Bus Line
+	5500 2300 5500 2950
+Wire Bus Line
+	5500 2950 6700 2950
+Entry Wire Line
+	5500 2500 5600 2600
+Entry Wire Line
+	5650 2600 5750 2700
+Entry Wire Line
+	5500 2650 5600 2750
+Entry Wire Line
+	5650 2750 5750 2850
+$EndSCHEMATC
