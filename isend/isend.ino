@@ -17,7 +17,7 @@ uint8_t DMX_LAST[DMX_CHANNELS];
 void setup() {
   pinModeFast(13, OUTPUT);
 
-  Wire.setClock(400000);
+//  Wire.setClock(400000);
   Wire.begin();
 
   DMXSerial.init(DMXReceiver);

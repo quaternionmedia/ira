@@ -4,6 +4,7 @@
 
 #define DMX_CHANNELS 6
 volatile uint8_t DMX[DMX_CHANNELS];
+//uint8_t DMX[DMX_CHANNELS];
 
 #define USE_HSV
 #include <WS2812.h>
@@ -20,6 +21,9 @@ uint8_t EYESIZE = 10;
 int position = 0;
 
 #include <cos_fix.h>
+
+#include <PacketSerial.h>
+PacketSerial pSerial;
 
 void positionIncrement() {
   if (SPEED < 64) {
@@ -52,10 +56,10 @@ void cylon(cRGB color) {
   dim.g = int(color.g / 10);
   dim.b = int(color.b / 10);
   LED.set_crgb_at(position, dim);
-  for (int i = 1; i <= EYESIZE; i++) {
+  for (int i = 1; i <= EYESIZE - 2; i++) {
     LED.set_crgb_at((position + i) % LED_COUNT, color);
   }
-  LED.set_crgb_at((position + EYESIZE ) % LED_COUNT, dim);
+  LED.set_crgb_at((position + EYESIZE - 1) % LED_COUNT, dim);
   LED.set_crgb_at((position - 1) % LED_COUNT, black);
 
   LED.sync();
@@ -105,7 +109,7 @@ void rain(cRGB color) {
 void sparkle(cRGB color) {
   //  int t = millis()/(256 - SPEED);
   for (int i = 0; i < LED_COUNT; i++) {
-    uint8_t scalar = byte(255 * (1 + sin_fix(position + 2 * PI * i / LED_COUNT)) / 2);
+    uint8_t scalar = byte(255 * (1 + sin_fix( 2 * PI * i / LED_COUNT)) / 2);
     LED.set_crgb_at(i, {
       byte(color.g * scalar),
       byte(color.r * scalar),
@@ -123,24 +127,33 @@ void newData(int n) {
   //  Serial.write(DMX, DMX_CHANNELS);
 }
 
+void onSerial(const uint8_t* buffer, size_t size) {
+  memcpy(DMX, buffer, size);
+//  for (int i = 0; i < size; i++) {
+//    DMX[i] = buffer[i];
+//  }
+  Serial.write(buffer, size);
+
+}
 
 void setup() {
   pinMode(13, OUTPUT);
-  Wire.setClock(400000);
+//  Wire.setClock(400000);
   Wire.begin(I2C_ADDRESS);
   Wire.onReceive(newData);
-  Serial.begin(9600);
-  while (!Serial) {
-  }
+//  Serial.begin(9600);
+//  while (!Serial) {
+//  }
+  pSerial.begin(9600);
+  pSerial.setPacketHandler(&onSerial);
   LED.setOutput(LED_PIN);
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
   analogWrite(STATUS_LED, DMX[0]);
   cRGB c = { DMX[2], DMX[1], DMX[3] };
-  SPEED = DMX[4];
-  EYESIZE = DMX[5];
+//  SPEED = DMX[4];
+//  EYESIZE = DMX[5];
 
   if (DMX[0] < 25) {
     wash(c);
@@ -160,6 +173,8 @@ void loop() {
   } else if (DMX[0] >= 229 && DMX[0] < 255) {
   } // else {error();}
 
-  //  positionIncrement();
-  position += 1;
+//    positionIncrement();
+  position = (position + 1 ) % LED_COUNT;
+
+  pSerial.update();
 }
