@@ -1,11 +1,29 @@
-single strand of WS2813
-1 power supply
-Power connectors (XT60)
-data connectors
-power wires
-data wire (with resistor)
-remote control
-housing for electronics
-Arduino nano
-IR receiver
-Breadboard
+Ira Scope
+
+Design Objectives:
+-Controllable strand of LED
+
+Bill of Materials:
+-single strand of WS2813
+-1 power supply
+-Power connectors (XT60)
+-data connectors
+-power wires
+-data wire (with resistor)
+-remote control
+-housing for electronics
+-Arduino nano
+-IR receiver
+-Breadboard
+
+Blueprints:
+-ira.fzz
+-/kicad_ira/*
+
+Code:
+-/irec/*
+-/isend/*
+-ira.py
+-iris.ino
+-packet.py
+-serialports.py
