@@ -1,4 +1,4 @@
- #include <Wire.h>
+#include <Wire.h>
 #define STATUS_LED 13
 #define I2C_ADDRESS 42
 
@@ -9,7 +9,7 @@ volatile uint8_t DMX[DMX_CHANNELS];
 #define USE_HSV
 #include <WS2812.h>
 
-#define LED_COUNT 1200
+#define LED_COUNT 415
 #define LED_PIN 6
 
 WS2812 LED(LED_COUNT);
@@ -70,9 +70,9 @@ void cylon(cRGB color) {
 void staticRainbow(cRGB color) {
 
   for (int i = 0; i < LED_COUNT; i++) {
-    LED.set_crgb_at(i, { byte(color.g * (1 + sin(2 * PI*i / LED_COUNT)) / 2),
-                         byte(color.r * (1 + cos(2 * PI*i / LED_COUNT)) / 2),
-                         byte(color.b * (1 + sin((2 * PI * i + 128)) / LED_COUNT)) / 2
+    LED.set_crgb_at(i, { byte(color.g * (1 + sin_fix(2 * PI*i / LED_COUNT)) / 2),
+                         byte(color.r * (1 + cos_fix(2 * PI*i / LED_COUNT)) / 2),
+                         byte(color.b * (1 + sin_fix((2 * PI * i + 128)) / LED_COUNT)) / 2
                        });
   }
   LED.sync();
@@ -128,17 +128,19 @@ void newData(int n) {
 }
 
 void onSerial(const uint8_t* buffer, size_t size) {
-  memcpy(DMX, buffer, size);
+  memcpy(DMX, buffer, min(size, DMX_CHANNELS));
 //  for (int i = 0; i < size; i++) {
 //    DMX[i] = buffer[i];
 //  }
-  Serial.write(buffer, size);
+//  analogWrite(STATUS_LED, buffer[0]);
+  pSerial.send(buffer, size);
+
 
 }
 
 void setup() {
   pinMode(13, OUTPUT);
-//  Wire.setClock(400000);300
+//  Wire.setClock(400000);
   Wire.begin(I2C_ADDRESS);
   Wire.onReceive(newData);
 //  Serial.begin(9600);
@@ -150,6 +152,7 @@ void setup() {
 }
 
 void loop() {
+  pSerial.update();
   analogWrite(STATUS_LED, DMX[0]);
   cRGB c = { DMX[2], DMX[1], DMX[3] };
   SPEED = DMX[4];
@@ -171,10 +174,9 @@ void loop() {
   } else if (DMX[0] >= 178 && DMX[0] < 204) {
   } else if (DMX[0] >= 204 && DMX[0] < 229) {
   } else if (DMX[0] >= 229 && DMX[0] < 255) {
-  } 
-  // else {error();}
-
-//    positionIncrement();
+//  // else {error();}
+  }
+//
+////    positionIncrement();
   pos = (pos + 1 ) % LED_COUNT;
-  pSerial.update();
 }
