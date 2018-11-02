@@ -9,7 +9,7 @@ volatile uint8_t DMX[DMX_CHANNELS];
 #define USE_HSV
 #include <WS2812.h>
 
-#define LED_COUNT 415
+#define LED_COUNT 300
 #define LED_PIN 6
 
 WS2812 LED(LED_COUNT);
@@ -24,6 +24,7 @@ int pos = 0;
 
 #include <PacketSerial.h>
 PacketSerial pSerial;
+#define PSERIAL_BAUD 1200
 
 void positionIncrement() {
   if (SPEED < 64) {
@@ -146,7 +147,7 @@ void setup() {
 //  Serial.begin(9600);
 //  while (!Serial) {
 //  }
-  pSerial.begin(9600);
+  pSerial.begin(PSERIAL_BAUD);
   pSerial.setPacketHandler(&onSerial);
   LED.setOutput(LED_PIN);
 }

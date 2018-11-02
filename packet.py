@@ -3,7 +3,7 @@ from cobs import cobs
 from struct import pack
 from serialports import serial_ports
 port = serial_ports()[0]
-BAUD = 9600
+BAUD = 1200
 from time import sleep
 
 s = Serial(port, BAUD, )
