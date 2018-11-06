@@ -1,4 +1,4 @@
-#include <Wire.h>
+  #include <Wire.h>
 #define STATUS_LED 13
 #define I2C_ADDRESS 42
 
@@ -14,11 +14,18 @@ volatile uint8_t DMX[DMX_CHANNELS];
 
 WS2812 LED(LED_COUNT);
 cRGB black = { 0, 0, 0 };
+cRGB white = { 255, 255, 255 };
+cRGB green = { 255, 0, 0 };
+cRGB red = { 0, 255, 0 };
+cRGB blue = { 0, 0, 255 };
+cRGB qblue = { 163, 183, 228 };
 cRGB last;
 
 uint8_t SPEED = 127;
 uint8_t EYESIZE = 10;
 int pos = 0;
+
+#define BAR 72
 
 #include <cos_fix.h>
 
@@ -121,6 +128,33 @@ void sparkle(cRGB color) {
   //position = (position - 1 ) % LED_COUNT;
 }
 
+void progress(uint8_t p, uint8_t b, uint8_t t) {
+  float split = BAR * p / 100;
+;
+  for (int i = 0; i < int(split); i++) {
+    LED.set_crgb_at(i, green);
+  }
+  LED.set_crgb_at(int(split) + 1, {map( 100 * ( split - int(split) ), 0, 100, 0, 255), 0, 0});
+  for (int i = int(split)  + 1; i < BAR; i++) {
+    LED.set_crgb_at(i, black);
+  }
+  for (int i = BAR; i < 172; i++) {
+    LED.set_crgb_at(i, qblue);
+  }
+  for (int i = 172; i < 190; i++) {
+    LED.set_crgb_at(i, { map(b, 20, 60, 0 ,127), map(b, 20, 60, 0, 255), map(b, 20,60,255,0) });
+  }
+  for (int i = 190; i < 208; i++) {
+  LED.set_crgb_at(i, { 0, map(t, 20, 220, 0, 255), map(t, 20,220,255,0) });
+  }
+  for (int i = 208; i < LED_COUNT; i++) {
+    LED.set_crgb_at(i, black);
+  }
+  
+  LED.sync();
+
+}
+
 void newData(int n) {
   for (int i = 0; i < n; i++) {
     DMX[i] = Wire.read();
@@ -150,6 +184,10 @@ void setup() {
   pSerial.begin(PSERIAL_BAUD);
   pSerial.setPacketHandler(&onSerial);
   LED.setOutput(LED_PIN);
+
+  DMX[1] = 255;
+  DMX[2] = 255;
+  DMX[3] = 255;
 }
 
 void loop() {
@@ -174,7 +212,8 @@ void loop() {
   } else if (DMX[0] >= 153 && DMX[0] < 178) {
   } else if (DMX[0] >= 178 && DMX[0] < 204) {
   } else if (DMX[0] >= 204 && DMX[0] < 229) {
-  } else if (DMX[0] >= 229 && DMX[0] < 255) {
+  } else if (DMX[0] >= 229 && DMX[0] <= 255) {
+    progress(DMX[1], DMX[2], DMX[3]);
 //  // else {error();}
   }
 //
