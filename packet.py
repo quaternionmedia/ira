@@ -11,6 +11,14 @@ s = Serial(port, BAUD, )
 def send(*args):
 	p = cobs.encode(pack('>{}B'.format(len(args)), *args)) + b'\x00'
 	s.write(p)
-	sleep(.1)
+	sleep(.2)
 	if s.in_waiting:
-		print(s.read(s.in_waiting))
+		result = s.read(s.in_waiting)
+		if result[-1] == 0:
+			decoded =cobs.decode(result[:-1])
+			values = []
+			for d in decoded:
+				values.append(d)
+			print(values)
+		else:
+			print(result)

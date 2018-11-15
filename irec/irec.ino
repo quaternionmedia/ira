@@ -1,4 +1,6 @@
-  #include <Wire.h>
+#define DEBUG true
+
+#include <Wire.h>
 #define STATUS_LED 13
 #define I2C_ADDRESS 42
 
@@ -25,7 +27,7 @@ uint8_t SPEED = 127;
 uint8_t EYESIZE = 10;
 int pos = 0;
 
-#define BAR 72
+#define BAR 70
 
 #include <cos_fix.h>
 
@@ -35,17 +37,17 @@ PacketSerial pSerial;
 
 void positionIncrement() {
   if (SPEED < 64) {
-    pos = (pos - (64 - SPEED)) % LED_COUNT;
+    pos = (pos - (65 - SPEED)) % LED_COUNT;
   } else if (SPEED >= 64 && SPEED < 128) {
     pos = (pos - 1 ) % LED_COUNT;
-    delay(SPEED - 64);
+    delay((SPEED - 64) *2 );
   } else if (SPEED == 128) {
     //freeze
   } else if (SPEED > 128 && SPEED < 192) {
     pos = (pos + 1 ) % LED_COUNT;
-    delay(192 - SPEED);
+    delay((192 - SPEED) *2 );
   } else if (SPEED >= 192) {
-    pos = (pos + (SPEED - 192)) % LED_COUNT;
+    pos = (pos + (SPEED - 190)) % LED_COUNT;
   }
 }
 
@@ -68,8 +70,12 @@ void cylon(cRGB color) {
     LED.set_crgb_at((pos + i) % LED_COUNT, color);
   }
 //  LED.set_crgb_at((pos + EYESIZE - 1) % LED_COUNT, dim);
-  LED.set_crgb_at((pos - 1) % LED_COUNT, black);
 
+  if (SPEED < 128) {
+    LED.set_crgb_at((pos + EYESIZE) % LED_COUNT, black);
+  } else {
+    LED.set_crgb_at((pos - 1) % LED_COUNT, black);
+  }
   LED.sync();
   //position = (position + 1 ) % LED_COUNT;
   //delay(DELAY);
@@ -129,13 +135,14 @@ void sparkle(cRGB color) {
 }
 
 void progress(uint8_t p, uint8_t b, uint8_t t) {
-  float split = BAR * p / 100;
-;
-  for (int i = 0; i < int(split); i++) {
+  int split = BAR * p / 100;
+  int remainder = (BAR * p / 100 - split) * 1000;
+  for (int i = 0; i < split; i++) {
     LED.set_crgb_at(i, green);
   }
-  LED.set_crgb_at(int(split) + 1, {map( 100 * ( split - int(split) ), 0, 100, 0, 255), 0, 0});
-  for (int i = int(split)  + 1; i < BAR; i++) {
+  LED.set_crgb_at(split, {map( remainder, 0, 1000, 0, 255), 0, 0});
+  
+  for (int i = split + 1; i < BAR; i++) {
     LED.set_crgb_at(i, black);
   }
   for (int i = BAR; i < 172; i++) {
@@ -168,8 +175,9 @@ void onSerial(const uint8_t* buffer, size_t size) {
 //    DMX[i] = buffer[i];
 //  }
 //  analogWrite(STATUS_LED, buffer[0]);
-  pSerial.send(buffer, size);
-
+  if (DEBUG) {
+   pSerial.send(buffer, size);
+  }
 
 }
 
@@ -217,6 +225,6 @@ void loop() {
 //  // else {error();}
   }
 //
-////    positionIncrement();
-  pos = (pos + 1 ) % LED_COUNT;
+    positionIncrement();
+//  pos = (pos + 1 ) % LED_COUNT;
 }
