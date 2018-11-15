@@ -1,4 +1,6 @@
-  #include <Wire.h>
+#define DEBUG true
+
+#include <Wire.h>
 #define STATUS_LED 13
 #define I2C_ADDRESS 42
 
@@ -68,8 +70,12 @@ void cylon(cRGB color) {
     LED.set_crgb_at((pos + i) % LED_COUNT, color);
   }
 //  LED.set_crgb_at((pos + EYESIZE - 1) % LED_COUNT, dim);
-  LED.set_crgb_at((pos - 1) % LED_COUNT, black);
 
+  if (SPEED < 128) {
+    LED.set_crgb_at((pos + EYESIZE) % LED_COUNT, black);
+  } else {
+    LED.set_crgb_at((pos - 1) % LED_COUNT, black);
+  }
   LED.sync();
   //position = (position + 1 ) % LED_COUNT;
   //delay(DELAY);
@@ -169,8 +175,9 @@ void onSerial(const uint8_t* buffer, size_t size) {
 //    DMX[i] = buffer[i];
 //  }
 //  analogWrite(STATUS_LED, buffer[0]);
-  pSerial.send(buffer, size);
-
+  if (DEBUG) {
+   pSerial.send(buffer, size);
+  }
 
 }
 
@@ -218,6 +225,6 @@ void loop() {
 //  // else {error();}
   }
 //
-////    positionIncrement();
-  pos = (pos + 1 ) % LED_COUNT;
+    positionIncrement();
+//  pos = (pos + 1 ) % LED_COUNT;
 }
