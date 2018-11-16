@@ -66,26 +66,11 @@ void wash(cRGB color) {
 }
 
 void cylon(cRGB color) {
-  last = color;
-//  cRGB dim;
-//  dim.r = int(color.r / 10);
-//  dim.g = int(color.g / 10);
-//  dim.b = int(color.b / 10);
-//  LED.set_crgb_at(pos, dim);
-//  for (int i = 0; i <= EYESIZE; i++) {
-//    LED.set_crgb_at((pos + i) % LED_COUNT, color);
-//  }
-////  LED.set_crgb_at((pos + EYESIZE - 1) % LED_COUNT, dim);
-//
-//  if (SPEED < 128) {
-//    LED.set_crgb_at((pos + EYESIZE) % LED_COUNT, black);
-//  } else {
-//    LED.set_crgb_at((pos - 1) % LED_COUNT, black);
-//  }
+
   for (int i = 0; i <= EYESIZE; i++) {
     LED.set_crgb_at((pos + i + LED_COUNT) % LED_COUNT, color); 
   }
-////  int c = (pos - lpos) % LED_COUNT;
+  
   if (delta < 0) {
     for (int i = 0; i > delta; i--) {
       LED.set_crgb_at((lpos + EYESIZE + i + LED_COUNT) % LED_COUNT, black);
@@ -95,13 +80,9 @@ void cylon(cRGB color) {
       LED.set_crgb_at((lpos + i + LED_COUNT) % LED_COUNT, black);
     }
   }
-//  for (int i = 0; (delta < 0) ? i >= delta : i < delta; (delta < 0) ? i-- : i++) {
-//    LED.set_crgb_at((lpos + i + LED_COUNT) % LED_COUNT, black);
-//  }
+
   LED.sync();
-  //position = (position + 1 ) % LED_COUNT;
-  //delay(DELAY);
-}
+  }
 
 void staticRainbow(cRGB color) {
 
@@ -129,31 +110,31 @@ void rainbow(cRGB color) {
 
 void rain(cRGB color) {
   for (int i = 0; i < LED_COUNT; i++) {
-    uint8_t scalar = byte(255 * (1 + sin_fix(i) / 2));
+    float scalar = (1 + sin_fix(i*2*PI/LED_COUNT)) / 2;
     LED.set_crgb_at((i + pos) % LED_COUNT,
-    {
-      byte(color.g * scalar),
-      byte(color.r * scalar),
-      byte(color.b * scalar)
-    });
+      {
+        (uint8_t) color.g * scalar,
+        (uint8_t) color.r * scalar,
+        (uint8_t) color.b * scalar
+      }
+    );
   }
   LED.sync();
 
-  //position = (position - 1 ) % LED_COUNT;
 }
 
 void sparkle(cRGB color) {
   //  int t = millis()/(256 - SPEED);
   for (int i = 0; i < LED_COUNT; i++) {
-    uint8_t scalar = byte(255 * (1 + sin_fix( 2 * PI * i / LED_COUNT)) / 2);
+    float scalar = (1 + sin_fix( 2 * PI * i / LED_COUNT)) / 2;
     LED.set_crgb_at(i, {
-      byte(color.g * scalar),
-      byte(color.r * scalar),
-      byte(color.b * scalar)
+      (uint8_t) color.g * scalar,
+      (uint8_t) color.r * scalar,
+      (uint8_t) color.b * scalar
     });
   }
   LED.sync();
-  //position = (position - 1 ) % LED_COUNT;
+
 }
 
 void progress(uint8_t p, uint8_t b, uint8_t t) {
