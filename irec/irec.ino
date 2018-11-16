@@ -26,6 +26,8 @@ cRGB last;
 uint8_t SPEED = 127;
 uint8_t EYESIZE = 10;
 int pos = 0;
+int lpos = pos;
+int delta = 0;
 
 #define BAR 70
 
@@ -36,19 +38,23 @@ PacketSerial pSerial;
 #define PSERIAL_BAUD 1200
 
 void positionIncrement() {
+  lpos = pos;
   if (SPEED < 64) {
-    pos = (pos - (65 - SPEED)) % LED_COUNT;
-  } else if (SPEED >= 64 && SPEED < 128) {
-    pos = (pos - 1 ) % LED_COUNT;
+    delta = SPEED - 65;
+    } else if (SPEED >= 64 && SPEED < 128) {
+    delta = -1;
     delay((SPEED - 64) *2 );
   } else if (SPEED == 128) {
+    delta = 0;
     //freeze
-  } else if (SPEED > 128 && SPEED < 192) {
-    pos = (pos + 1 ) % LED_COUNT;
+  } else if (SPEED > 128 && SPEED <= 192) {
+    delta = 1;
     delay((192 - SPEED) *2 );
-  } else if (SPEED >= 192) {
-    pos = (pos + (SPEED - 190)) % LED_COUNT;
-  }
+  } else if (SPEED > 192) {
+    delta = SPEED - 191;
+    }
+    pos = (pos + delta + LED_COUNT) % LED_COUNT;
+  
 }
 
 void wash(cRGB color) {
@@ -66,16 +72,32 @@ void cylon(cRGB color) {
 //  dim.g = int(color.g / 10);
 //  dim.b = int(color.b / 10);
 //  LED.set_crgb_at(pos, dim);
+//  for (int i = 0; i <= EYESIZE; i++) {
+//    LED.set_crgb_at((pos + i) % LED_COUNT, color);
+//  }
+////  LED.set_crgb_at((pos + EYESIZE - 1) % LED_COUNT, dim);
+//
+//  if (SPEED < 128) {
+//    LED.set_crgb_at((pos + EYESIZE) % LED_COUNT, black);
+//  } else {
+//    LED.set_crgb_at((pos - 1) % LED_COUNT, black);
+//  }
   for (int i = 0; i <= EYESIZE; i++) {
-    LED.set_crgb_at((pos + i) % LED_COUNT, color);
+    LED.set_crgb_at((pos + i + LED_COUNT) % LED_COUNT, color); 
   }
-//  LED.set_crgb_at((pos + EYESIZE - 1) % LED_COUNT, dim);
-
-  if (SPEED < 128) {
-    LED.set_crgb_at((pos + EYESIZE) % LED_COUNT, black);
+////  int c = (pos - lpos) % LED_COUNT;
+  if (delta < 0) {
+    for (int i = 0; i > delta; i--) {
+      LED.set_crgb_at((lpos + EYESIZE + i + LED_COUNT) % LED_COUNT, black);
+    }
   } else {
-    LED.set_crgb_at((pos - 1) % LED_COUNT, black);
+    for (int i = 0; i < delta; i++) {
+      LED.set_crgb_at((lpos + i + LED_COUNT) % LED_COUNT, black);
+    }
   }
+//  for (int i = 0; (delta < 0) ? i >= delta : i < delta; (delta < 0) ? i-- : i++) {
+//    LED.set_crgb_at((lpos + i + LED_COUNT) % LED_COUNT, black);
+//  }
   LED.sync();
   //position = (position + 1 ) % LED_COUNT;
   //delay(DELAY);
