@@ -8,20 +8,21 @@
 volatile uint8_t DMX[DMX_CHANNELS];
 //uint8_t DMX[DMX_CHANNELS];
 
-#define USE_HSV
-#include <WS2812.h>
+//#define USE_HSV
+//#include <WS2812.h>
+
+#include <FastLED.h>
 
 #define LED_COUNT 300
 #define LED_PIN 6
 
-WS2812 LED(LED_COUNT);
-cRGB black = { 0, 0, 0 };
-cRGB white = { 255, 255, 255 };
-cRGB green = { 255, 0, 0 };
-cRGB red = { 0, 255, 0 };
-cRGB blue = { 0, 0, 255 };
-cRGB qblue = { 163, 183, 228 };
-cRGB last;
+//WS2812 LED(LED_COUNT);
+CRGB LED[LED_COUNT];
+
+
+
+CRGB qblue = CRGB( 163, 183, 228 );
+CRGB last;
 
 uint8_t SPEED = 127;
 uint8_t EYESIZE = 10;
@@ -57,83 +58,82 @@ void positionIncrement() {
   
 }
 
-void wash(cRGB color) {
+void wash(CRGB color) {
   for (int i = 0; i < LED_COUNT; i++)
   {
-    LED.set_crgb_at(i, color);
+    LED[i] = color;
   }
-  LED.sync();
+  FastLED.show();
 }
 
-void cylon(cRGB color) {
+void cylon(CRGB color) {
 
   for (int i = 0; i <= EYESIZE; i++) {
-    LED.set_crgb_at((pos + i + LED_COUNT) % LED_COUNT, color); 
+    LED[(pos + i + LED_COUNT) % LED_COUNT] = color; 
   }
   
   if (delta < 0) {
     for (int i = 0; i > delta; i--) {
-      LED.set_crgb_at((lpos + EYESIZE + i + LED_COUNT) % LED_COUNT, black);
+      LED[(lpos + EYESIZE + i + LED_COUNT) % LED_COUNT] = CRGB::Black;
     }
   } else {
     for (int i = 0; i < delta; i++) {
-      LED.set_crgb_at((lpos + i + LED_COUNT) % LED_COUNT, black);
+      LED[(lpos + i + LED_COUNT) % LED_COUNT] = CRGB::Black;
     }
   }
 
-  LED.sync();
+  FastLED.show();
   }
 
-void staticRainbow(cRGB color) {
+void staticRainbow(CRGB color) {
 
   for (int i = 0; i < LED_COUNT; i++) {
-    LED.set_crgb_at(i, { byte(color.g * (1 + sin_fix(2 * PI*i / LED_COUNT)) / 2),
+    LED[i] = CRGB (byte(color.g * (1 + sin_fix(2 * PI*i / LED_COUNT)) / 2),
                          byte(color.r * (1 + cos_fix(2 * PI*i / LED_COUNT)) / 2),
                          byte(color.b * (1 + sin_fix((2 * PI * i + 128)) / LED_COUNT)) / 2
-                       });
+                       );
   }
-  LED.sync();
+  FastLED.show();
 }
 
-void rainbow(cRGB color) {
+void rainbow(CRGB color) {
   for (int i = 0; i < LED_COUNT; i++) {
     uint8_t scalar = (1 + sin_fix(2 * PI * i * LED_COUNT)) / 2;
-    LED.set_crgb_at(i, {
+    LED[i] = CRGB(
       (color.g + pos) % 256,
       (color.r + pos) % 256,
       (color.b - pos) % 256
-    }) ;
+    );
   }
-  LED.sync();
+  FastLED.show();
 
 }
 
-void rain(cRGB color) {
+void rain(CRGB color) {
   for (int i = 0; i < LED_COUNT; i++) {
-    float scalar = (1 + sin_fix(i*2*PI/LED_COUNT)) / 2;
-    LED.set_crgb_at((i + pos) % LED_COUNT,
-      {
+    uint16_t scalar = (1 + sin_fix(i*2*PI/LED_COUNT)) / 2;
+    LED[(i + pos) % LED_COUNT] =
+      CRGB(
         (uint8_t) color.g * scalar,
         (uint8_t) color.r * scalar,
         (uint8_t) color.b * scalar
-      }
-    );
+      );
   }
-  LED.sync();
+  FastLED.show();
 
 }
 
-void sparkle(cRGB color) {
+void sparkle(CRGB color) {
   //  int t = millis()/(256 - SPEED);
   for (int i = 0; i < LED_COUNT; i++) {
     float scalar = (1 + sin_fix( 2 * PI * i / LED_COUNT)) / 2;
-    LED.set_crgb_at(i, {
+    LED[i]  = CRGB(
       (uint8_t) color.g * scalar,
       (uint8_t) color.r * scalar,
       (uint8_t) color.b * scalar
-    });
+    );
   }
-  LED.sync();
+  FastLED.show();
 
 }
 
@@ -141,27 +141,27 @@ void progress(uint8_t p, uint8_t b, uint8_t t) {
   int split = BAR * p / 100;
   int remainder = (BAR * p / 100 - split) * 1000;
   for (int i = 0; i < split; i++) {
-    LED.set_crgb_at(i, green);
+    LED[i] = CRGB::Green;
   }
-  LED.set_crgb_at(split, {map( remainder, 0, 1000, 0, 255), 0, 0});
+  LED[split] = CRGB (map( remainder, 0, 1000, 0, 255), 0, 0);
   
   for (int i = split + 1; i < BAR; i++) {
-    LED.set_crgb_at(i, black);
+    LED[i] = CRGB::Black;
   }
   for (int i = BAR; i < 172; i++) {
-    LED.set_crgb_at(i, qblue);
+    LED[i] = qblue;
   }
   for (int i = 172; i < 190; i++) {
-    LED.set_crgb_at(i, { map(b, 20, 60, 0 ,127), map(b, 20, 60, 0, 255), map(b, 20,60,255,0) });
+    LED[i] = CRGB (map(b, 20, 60, 0 ,127), map(b, 20, 60, 0, 255), map(b, 20,60,255,0) );
   }
   for (int i = 190; i < 208; i++) {
-  LED.set_crgb_at(i, { 0, map(t, 20, 220, 0, 255), map(t, 20,220,255,0) });
+  LED[i] = CRGB ( 0, map(t, 20, 220, 0, 255), map(t, 20,220,255,0) );
   }
   for (int i = 208; i < LED_COUNT; i++) {
-    LED.set_crgb_at(i, black);
+    LED[i] = CRGB::Black;
   }
   
-  LED.sync();
+  FastLED.show();
 
 }
 
@@ -194,7 +194,9 @@ void setup() {
 //  }
   pSerial.begin(PSERIAL_BAUD);
   pSerial.setPacketHandler(&onSerial);
-  LED.setOutput(LED_PIN);
+  
+//  LED.setOutput(LED_PIN);
+  LEDS.addLeds<WS2812,LED_PIN,RGB>(LED,LED_COUNT);
 
   DMX[1] = 255;
   DMX[2] = 255;
@@ -204,7 +206,7 @@ void setup() {
 void loop() {
   pSerial.update();
   analogWrite(STATUS_LED, DMX[0]);
-  cRGB c = { DMX[2], DMX[1], DMX[3] };
+  CRGB c = { DMX[2], DMX[1], DMX[3] };
   SPEED = DMX[4];
 //  EYESIZE = DMX[5];
 
