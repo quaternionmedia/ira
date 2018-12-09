@@ -39,26 +39,30 @@ static uint8_t hue = 0;
 PacketSerial pSerial;
 #define PSERIAL_BAUD 1200
 
-void fadeall() { for(int i = 0; i < LED_COUNT; i++) { LED[i].nscale8(254); } }
+void fadeall() {
+  for (int i = 0; i < LED_COUNT; i++) {
+    LED[i].nscale8(254);
+  }
+}
 
 void positionIncrement() {
   lpos = pos;
   if (SPEED < 64) {
     delta = SPEED - 65;
-    } else if (SPEED >= 64 && SPEED < 128) {
+  } else if (SPEED >= 64 && SPEED < 128) {
     delta = -1;
-    delay((SPEED - 64) *2 );
+    delay((SPEED - 64) * 2 );
   } else if (SPEED == 128) {
     delta = 0;
     //freeze
   } else if (SPEED > 128 && SPEED <= 192) {
     delta = 1;
-    delay((192 - SPEED) *2 );
+    delay((192 - SPEED) * 2 );
   } else if (SPEED > 192) {
     delta = SPEED - 191;
-    }
-    pos = (pos + delta + LED_COUNT) % LED_COUNT;
-  
+  }
+  pos = (pos + delta + LED_COUNT) % LED_COUNT;
+
 }
 
 void wash(CRGB color) {
@@ -72,9 +76,9 @@ void wash(CRGB color) {
 void cylon(CRGB color) {
 
   for (int i = 0; i <= EYESIZE; i++) {
-    LED[(pos + i + LED_COUNT) % LED_COUNT] = color; 
+    LED[(pos + i + LED_COUNT) % LED_COUNT] = color;
   }
-  
+
   if (delta < 0) {
     for (int i = 0; i > delta; i--) {
       LED[(lpos + EYESIZE + i + LED_COUNT) % LED_COUNT] = CRGB::Black;
@@ -86,13 +90,13 @@ void cylon(CRGB color) {
   }
 
   FastLED.show();
-  }
+}
 
 void cylonColor(CRGB color) {
   for (int i = 0; i <= EYESIZE; i++) {
-    LED[(pos + i + LED_COUNT) % LED_COUNT] = CHSV(hue++, 255, 255);; 
+    LED[(pos + i + LED_COUNT) % LED_COUNT] = CHSV(hue++, color.g, color.b);
   }
-  
+
   if (delta < 0) {
     for (int i = 0; i > delta; i--) {
       LED[(lpos + EYESIZE + i + LED_COUNT) % LED_COUNT] = CRGB::Black;
@@ -113,32 +117,28 @@ void rain(CRGB color) {
     LED[j].r = qadd8(color.r, scalar);
     LED[j].g = qadd8(color.g, scalar);
     LED[j].b = qadd8(color.b, scalar);
-  
+
   }
   FastLED.show();
 
 }
 
 void glitter(CRGB color) {
-    if( random8() <= SPEED) {
+  if ( random8() <= SPEED) {
     LED[ random16(LED_COUNT) ] += color;
   }
-    FastLED.show();
+  FastLED.show();
   fadeall();
 }
 
-void sparkle(CRGB color) {
-  //  int t = millis()/(256 - SPEED);
-  for (int i = 0; i < LED_COUNT; i++) {
-    float scalar = (1 + sin8( 255 * i / LED_COUNT)) / 2;
-    LED[i].r = color.r * scalar;
-    LED[i].g = color.g * scalar;
-    LED[i].b = color.b * scalar;
-    
+void glitterColor(CRGB color) {
+  if ( random8() <= SPEED) {
+    LED[ random16(LED_COUNT) ] += CHSV(hue++, 255, 128);
   }
   FastLED.show();
-
+  fadeall();
 }
+
 
 void progress(uint8_t p, uint8_t b, uint8_t t) {
   int split = BAR * p / 100;
@@ -147,7 +147,7 @@ void progress(uint8_t p, uint8_t b, uint8_t t) {
     LED[i] = CRGB::Green;
   }
   LED[split] = CRGB (map( remainder, 0, 1000, 0, 255), 0, 0);
-  
+
   for (int i = split + 1; i < BAR; i++) {
     LED[i] = CRGB::Black;
   }
@@ -155,15 +155,15 @@ void progress(uint8_t p, uint8_t b, uint8_t t) {
     LED[i] = qblue;
   }
   for (int i = 172; i < 190; i++) {
-    LED[i] = CRGB (map(b, 20, 60, 0 ,127), map(b, 20, 60, 0, 255), map(b, 20,60,255,0) );
+    LED[i] = CRGB (map(b, 20, 60, 0 , 127), map(b, 20, 60, 0, 255), map(b, 20, 60, 255, 0) );
   }
   for (int i = 190; i < 208; i++) {
-  LED[i] = CRGB ( 0, map(t, 20, 220, 0, 255), map(t, 20,220,255,0) );
+    LED[i] = CRGB ( 0, map(t, 20, 220, 0, 255), map(t, 20, 220, 255, 0) );
   }
   for (int i = 208; i < LED_COUNT; i++) {
     LED[i] = CRGB::Black;
   }
-  
+
   FastLED.show();
 
 }
@@ -177,29 +177,29 @@ void newData(int n) {
 
 void onSerial(const uint8_t* buffer, size_t size) {
   memcpy(DMX, buffer, min(size, DMX_CHANNELS));
-//  for (int i = 0; i < size; i++) {
-//    DMX[i] = buffer[i];
-//  }
-//  analogWrite(STATUS_LED, buffer[0]);
+  //  for (int i = 0; i < size; i++) {
+  //    DMX[i] = buffer[i];
+  //  }
+  //  analogWrite(STATUS_LED, buffer[0]);
   if (DEBUG) {
-   pSerial.send(buffer, size);
+    pSerial.send(buffer, size);
   }
 
 }
 
 void setup() {
   pinMode(13, OUTPUT);
-//  Wire.setClock(400000);
+  //  Wire.setClock(400000);
   Wire.begin(I2C_ADDRESS);
   Wire.onReceive(newData);
-//  Serial.begin(9600);
-//  while (!Serial) {
-//  }
+  //  Serial.begin(9600);
+  //  while (!Serial) {
+  //  }
   pSerial.begin(PSERIAL_BAUD);
   pSerial.setPacketHandler(&onSerial);
-  
-//  LED.setOutput(LED_PIN);
-  LEDS.addLeds<WS2812,LED_PIN,RGB>(LED,LED_COUNT);
+
+  //  LED.setOutput(LED_PIN);
+  LEDS.addLeds<WS2812, LED_PIN, RGB>(LED, LED_COUNT);
 
   DMX[1] = 255;
   DMX[2] = 255;
@@ -211,7 +211,7 @@ void loop() {
   analogWrite(STATUS_LED, DMX[0]);
   CRGB c = { DMX[2], DMX[1], DMX[3] };
   SPEED = DMX[4];
-//  EYESIZE = DMX[5];
+  //  EYESIZE = DMX[5];
 
   if (DMX[0] < 25) {
     wash(c);
@@ -224,15 +224,15 @@ void loop() {
   } else if (DMX[0] >= 102 && DMX[0] < 127) {
     glitter(c);
   } else if (DMX[0] >= 127 && DMX[0] < 153) {
-    sparkle(c);
+    glitterColor(c);
   } else if (DMX[0] >= 153 && DMX[0] < 178) {
   } else if (DMX[0] >= 178 && DMX[0] < 204) {
   } else if (DMX[0] >= 204 && DMX[0] < 229) {
   } else if (DMX[0] >= 229 && DMX[0] <= 255) {
     progress(DMX[1], DMX[2], DMX[3]);
-//  // else {error();}
+    //  // else {error();}
   }
-//
-    positionIncrement();
-//  pos = (pos + 1 ) % LED_COUNT;
+  //
+  positionIncrement();
+  //  pos = (pos + 1 ) % LED_COUNT;
 }
