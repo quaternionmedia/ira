@@ -32,7 +32,7 @@ int delta = 0;
 
 #define BAR 70
 
-#include <cos_fix.h>
+//#include <cos_fix.h>
 
 #include <PacketSerial.h>
 PacketSerial pSerial;
@@ -88,22 +88,22 @@ void cylon(CRGB color) {
 void staticRainbow(CRGB color) {
 
   for (int i = 0; i < LED_COUNT; i++) {
-    LED[i] = CRGB (byte(color.g * (1 + sin_fix(2 * PI*i / LED_COUNT)) / 2),
-                         byte(color.r * (1 + cos_fix(2 * PI*i / LED_COUNT)) / 2),
-                         byte(color.b * (1 + sin_fix((2 * PI * i + 128)) / LED_COUNT)) / 2
-                       );
-  }
+    uint8_t s = sin8(255 * i / LED_COUNT);
+    LED[i].r = qadd8(color.r , s);
+    LED[i].g = qadd8(color.g , s);
+    LED[i].b = qadd8(color.b , s);
+    }
   FastLED.show();
 }
 
 void rainbow(CRGB color) {
   for (int i = 0; i < LED_COUNT; i++) {
-    uint8_t scalar = (1 + sin_fix(2 * PI * i * LED_COUNT)) / 2;
-    LED[i] = CRGB(
-      (color.g + pos) % 256,
-      (color.r + pos) % 256,
-      (color.b - pos) % 256
-    );
+    uint8_t scalar = sin8(255 * i / LED_COUNT);
+
+    LED[i].r = qadd8(color.r, scalar);
+    LED[i].g = qadd8(color.g, scalar);
+    LED[i].b = qadd8(color.b, scalar);
+    
   }
   FastLED.show();
 
@@ -111,13 +111,12 @@ void rainbow(CRGB color) {
 
 void rain(CRGB color) {
   for (int i = 0; i < LED_COUNT; i++) {
-    uint16_t scalar = (1 + sin_fix(i*2*PI/LED_COUNT)) / 2;
-    LED[(i + pos) % LED_COUNT] =
-      CRGB(
-        (uint8_t) color.g * scalar,
-        (uint8_t) color.r * scalar,
-        (uint8_t) color.b * scalar
-      );
+    uint8_t scalar = sin8(255 * i / LED_COUNT);
+    int j = (i + pos) % LED_COUNT;
+    LED[j].r = qadd8(color.r, scalar);
+    LED[j].g = qadd8(color.g, scalar);
+    LED[j].b = qadd8(color.b, scalar);
+  
   }
   FastLED.show();
 
@@ -126,12 +125,11 @@ void rain(CRGB color) {
 void sparkle(CRGB color) {
   //  int t = millis()/(256 - SPEED);
   for (int i = 0; i < LED_COUNT; i++) {
-    float scalar = (1 + sin_fix( 2 * PI * i / LED_COUNT)) / 2;
-    LED[i]  = CRGB(
-      (uint8_t) color.g * scalar,
-      (uint8_t) color.r * scalar,
-      (uint8_t) color.b * scalar
-    );
+    float scalar = (1 + sin8( 255 * i / LED_COUNT)) / 2;
+    LED[i].r = color.r * scalar;
+    LED[i].g = color.g * scalar;
+    LED[i].b = color.b * scalar;
+    
   }
   FastLED.show();
 
