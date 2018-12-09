@@ -29,6 +29,7 @@ uint8_t EYESIZE = 10;
 int pos = 0;
 int lpos = pos;
 int delta = 0;
+static uint8_t hue = 0;
 
 #define BAR 70
 
@@ -37,6 +38,8 @@ int delta = 0;
 #include <PacketSerial.h>
 PacketSerial pSerial;
 #define PSERIAL_BAUD 1200
+
+void fadeall() { for(int i = 0; i < LED_COUNT; i++) { LED[i].nscale8(254); } }
 
 void positionIncrement() {
   lpos = pos;
@@ -85,30 +88,24 @@ void cylon(CRGB color) {
   FastLED.show();
   }
 
-void staticRainbow(CRGB color) {
-
-  for (int i = 0; i < LED_COUNT; i++) {
-    uint8_t s = sin8(255 * i / LED_COUNT);
-    LED[i].r = qadd8(color.r , s);
-    LED[i].g = qadd8(color.g , s);
-    LED[i].b = qadd8(color.b , s);
-    }
-  FastLED.show();
-}
-
-void rainbow(CRGB color) {
-  for (int i = 0; i < LED_COUNT; i++) {
-    uint8_t scalar = sin8(255 * i / LED_COUNT);
-
-    LED[i].r = qadd8(color.r, scalar);
-    LED[i].g = qadd8(color.g, scalar);
-    LED[i].b = qadd8(color.b, scalar);
-    
+void cylonColor(CRGB color) {
+  for (int i = 0; i <= EYESIZE; i++) {
+    LED[(pos + i + LED_COUNT) % LED_COUNT] = CHSV(hue++, 255, 255);; 
   }
+  
+  if (delta < 0) {
+    for (int i = 0; i > delta; i--) {
+      LED[(lpos + EYESIZE + i + LED_COUNT) % LED_COUNT] = CRGB::Black;
+    }
+  } else {
+    for (int i = 0; i < delta; i++) {
+      LED[(lpos + i + LED_COUNT) % LED_COUNT] = CRGB::Black;
+    }
+  }
+
   FastLED.show();
-
+  fadeall();
 }
-
 void rain(CRGB color) {
   for (int i = 0; i < LED_COUNT; i++) {
     uint8_t scalar = sin8(255 * i / LED_COUNT);
@@ -120,6 +117,14 @@ void rain(CRGB color) {
   }
   FastLED.show();
 
+}
+
+void glitter(CRGB color) {
+    if( random8() <= SPEED) {
+    LED[ random16(LED_COUNT) ] += color;
+  }
+    FastLED.show();
+  fadeall();
 }
 
 void sparkle(CRGB color) {
@@ -213,11 +218,11 @@ void loop() {
   } else if (DMX[0] >= 25 && DMX[0] < 51) {
     cylon(c);
   } else if (DMX[0] >= 51 && DMX[0] < 76) {
-    staticRainbow(c);
+    cylonColor(c);
   } else if (DMX[0] >= 76 && DMX[0] < 102) {
-    rainbow(c);
-  } else if (DMX[0] >= 102 && DMX[0] < 127) {
     rain(c);
+  } else if (DMX[0] >= 102 && DMX[0] < 127) {
+    glitter(c);
   } else if (DMX[0] >= 127 && DMX[0] < 153) {
     sparkle(c);
   } else if (DMX[0] >= 153 && DMX[0] < 178) {
