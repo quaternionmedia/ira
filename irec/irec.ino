@@ -123,6 +123,19 @@ void rain(CRGB color) {
 
 }
 
+void rainbow(CRGB color) {
+  for (int i = 0; i < LED_COUNT; i++) {
+    uint8_t scalar = sin8(255 * i / LED_COUNT);
+    int j = (i + pos) % LED_COUNT;
+    LED[j].r = qadd8(color.r, scalar);
+    LED[j].g = qadd8(color.g, scalar);
+    LED[j].b = qadd8(color.b, scalar);
+
+  }
+  FastLED.show();
+
+}
+
 void glitter(CRGB color) {
   if ( random8() <= SPEED) {
     LED[ random16(LED_COUNT) ] += color;
@@ -139,6 +152,22 @@ void glitterColor(CRGB color) {
   fadeall();
 }
 
+void glitterRandom(CRGB color) {
+  if ( random8() <= SPEED) {
+    LED[ random16(LED_COUNT) ] += CHSV(random8(), 255, 128);
+  }
+  FastLED.show();
+  fadeall();
+}
+
+void chaser(CRGB color) {
+  fadeToBlackBy( LED, LED_COUNT, 20);
+  for( int i = 0; i < 2; i++) {
+    LED[beatsin16( i+7, 0, LED_COUNT-1 )] |= color;
+  }
+  FastLED.show();
+
+}
 
 void progress(uint8_t p, uint8_t b, uint8_t t) {
   int split = BAR * p / 100;
@@ -222,12 +251,15 @@ void loop() {
   } else if (DMX[0] >= 76 && DMX[0] < 102) {
     rain(c);
   } else if (DMX[0] >= 102 && DMX[0] < 127) {
-    glitter(c);
+    rainbow(c);
   } else if (DMX[0] >= 127 && DMX[0] < 153) {
-    glitterColor(c);
+    glitter(c);
   } else if (DMX[0] >= 153 && DMX[0] < 178) {
+    glitterColor(c);
   } else if (DMX[0] >= 178 && DMX[0] < 204) {
+    glitterRandom(c);
   } else if (DMX[0] >= 204 && DMX[0] < 229) {
+    chaser(c);
   } else if (DMX[0] >= 229 && DMX[0] <= 255) {
     progress(DMX[1], DMX[2], DMX[3]);
     //  // else {error();}
