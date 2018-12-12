@@ -1,4 +1,4 @@
-#generator
+# generator
 
 LED signal generator. Needs [Controller](../dmx/dmx.ino) to tell it what to do.
 ### Dependencies

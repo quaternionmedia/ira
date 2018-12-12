@@ -21,7 +21,7 @@ There are many ways to configure these lights, but they all need:
 ##  Generator
 This is the actual WS2811 controller, in charge of constantly generating the right signal for the lights. It can receive information from I2C, Serial, or even a physical button.
 
-See [generator.ino](generator/generator.ino) for more details.
+See [generator](generator) for more details.
 
 ## Controller
 The controller might be a DMX lighting board, a python script, a node server with a frontend, an internal preprogrammed set of effects, or anything else that can send instructions.
@@ -29,8 +29,9 @@ The controller might be a DMX lighting board, a python script, a node server wit
 ### DMX
 When controlling via DMX, a separate Arduino DMX receiver is necessary to translate the commands, due to the timing constraints of interrupt based programming for Arduino.
 
-More details and a generic DMX translator available at [dmx.ino](dmx/dmx.ino).
+More details and a generic DMX translator available at [dmx.ino](dmx).
 
+## Communication
 ### Serial
 Using the Serial interface is possible, but more prone to lost packets and message errors due to the heavy use of interrupts. The Serial connection only becomes stable at sufficiently slow baud rates ( <= 1200 ).
 
