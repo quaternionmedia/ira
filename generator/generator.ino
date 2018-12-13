@@ -20,7 +20,7 @@ volatile uint8_t DMX[DMX_CHANNELS];
 CRGB LED[LED_COUNT];
 
 
-
+CRGB black = CRGB(0,0,0);
 CRGB qblue = CRGB( 163, 183, 228 );
 CRGB last;
 
@@ -74,7 +74,9 @@ void wash(CRGB color) {
 }
 
 void cylon(CRGB color) {
-
+  if (color == black) {
+    color = CHSV(hue++, 255, random8());
+  }
   for (int i = 0; i <= EYESIZE; i++) {
     LED[(pos + i + LED_COUNT) % LED_COUNT] = color;
   }
