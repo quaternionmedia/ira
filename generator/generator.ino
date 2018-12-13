@@ -127,34 +127,31 @@ void rainbow(CRGB color) {
   for (int i = 0; i < LED_COUNT; i++) {
     uint8_t scalar = sin8(255 * i / LED_COUNT);
     int j = (i + pos) % LED_COUNT;
-    LED[j].r = qadd8(color.r, scalar);
-    LED[j].g = qadd8(color.g, scalar);
-    LED[j].b = qadd8(color.b, scalar);
-
+    LED[j] = color;
+    LED[j].fadeLightBy(scalar);
+//    LED[j].nscale8(scalar);
   }
   FastLED.show();
-
+//  fadeall();
 }
 
 void glitter(CRGB color) {
   if ( random8() <= SPEED) {
+    if (color == CRGB(0,0,0)) {
+      //when input == black, use hue cycle
+      LED[ random16(LED_COUNT) ] += CHSV(hue++, 255, random8());
+    } else {
+      // else use color
     LED[ random16(LED_COUNT) ] += color;
-  }
-  FastLED.show();
-  fadeall();
-}
-
-void glitterColor(CRGB color) {
-  if ( random8() <= SPEED) {
-    LED[ random16(LED_COUNT) ] += CHSV(hue++, 255, 128);
+    }
   }
   FastLED.show();
   fadeall();
 }
 
 void glitterRandom(CRGB color) {
-  if ( random8() <= SPEED) {
-    LED[ random16(LED_COUNT) ] += CHSV(random8(), 255, 128);
+  if ( random16(383) <= SPEED + delta + 64) {
+    LED[ random16(LED_COUNT) ] += CHSV(random8(), 255, random8());
   }
   FastLED.show();
   fadeall();
@@ -162,8 +159,8 @@ void glitterRandom(CRGB color) {
 
 void chaser(CRGB color) {
   fadeToBlackBy( LED, LED_COUNT, 20);
-  for( int i = 0; i < 2; i++) {
-    LED[beatsin16( i+7, 0, LED_COUNT-1 )] |= color;
+  for ( int i = 0; i < 2; i++) {
+    LED[beatsin16( i + 7, 0, LED_COUNT - 1 )] |= color;
   }
   FastLED.show();
 
@@ -255,7 +252,7 @@ void loop() {
   } else if (DMX[0] >= 127 && DMX[0] < 153) {
     glitter(c);
   } else if (DMX[0] >= 153 && DMX[0] < 178) {
-    glitterColor(c);
+
   } else if (DMX[0] >= 178 && DMX[0] < 204) {
     glitterRandom(c);
   } else if (DMX[0] >= 204 && DMX[0] < 229) {
