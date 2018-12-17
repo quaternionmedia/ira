@@ -20,16 +20,19 @@ volatile uint8_t DMX[DMX_CHANNELS];
 CRGB LED[LED_COUNT];
 
 
-CRGB black = CRGB(0,0,0);
+CRGB black = CRGB(0, 0, 0);
 CRGB qblue = CRGB( 163, 183, 228 );
 CRGB last;
 
 uint8_t SPEED = 127;
+uint8_t ARG = 0;
 uint8_t EYESIZE = 10;
 int pos = 0;
 int lpos = pos;
 int delta = 0;
 static uint8_t hue = 0;
+unsigned long lastUpdate = 0;
+volatile bool NEWS = false;
 
 #define BAR 70
 
@@ -51,13 +54,16 @@ void positionIncrement() {
     delta = SPEED - 65;
   } else if (SPEED >= 64 && SPEED < 128) {
     delta = -1;
-    delay((SPEED - 64) * 2 );
+    //    delay((SPEED - 64) * 2 );
+
+    wait((SPEED - 64) * 4 );
   } else if (SPEED == 128) {
     delta = 0;
     //freeze
   } else if (SPEED > 128 && SPEED <= 192) {
     delta = 1;
-    delay((192 - SPEED) * 2 );
+    //    delay((192 - SPEED) * 2 );
+    wait((192 - SPEED) * 4 );
   } else if (SPEED > 192) {
     delta = SPEED - 191;
   }
@@ -65,6 +71,14 @@ void positionIncrement() {
 
 }
 
+void wait(int t) {
+  unsigned long endTime = millis() + t;
+  while (millis() <= endTime && !NEWS) {
+    delay(1);
+    pSerial.update();
+
+  }
+}
 void wash(CRGB color) {
   for (int i = 0; i < LED_COUNT; i++)
   {
@@ -75,7 +89,7 @@ void wash(CRGB color) {
 
 void cylon(CRGB color) {
   if (color == black) {
-    color = CHSV(hue++, 255, random8());
+    color = CHSV(hue, 255, 255);
   }
   for (int i = 0; i <= EYESIZE; i++) {
     LED[(pos + i + LED_COUNT) % LED_COUNT] = color;
@@ -83,35 +97,41 @@ void cylon(CRGB color) {
 
   if (delta < 0) {
     for (int i = 0; i > delta; i--) {
-      LED[(lpos + EYESIZE + i + LED_COUNT) % LED_COUNT] = CRGB::Black;
+      LED[(lpos + EYESIZE + i + LED_COUNT) % LED_COUNT] = black;
     }
   } else {
     for (int i = 0; i < delta; i++) {
-      LED[(lpos + i + LED_COUNT) % LED_COUNT] = CRGB::Black;
+      LED[(lpos + i + LED_COUNT) % LED_COUNT] = black;
     }
   }
 
   FastLED.show();
+  hue++;
 }
 
-void cylonColor(CRGB color) {
-  for (int i = 0; i <= EYESIZE; i++) {
-    LED[(pos + i + LED_COUNT) % LED_COUNT] = CHSV(hue++, color.g, color.b);
+void marquee(CRGB color) {
+  if (color == black) {
+    color = CHSV(hue, 255, 255);
   }
+  unsigned long  t = millis() - lastUpdate;
+  if ((t >= (255 - SPEED)) || (t - lastUpdate <= 0)) {
+    for (int i = 0; i < LED_COUNT; i++) {
+      if (i % (ARG + 2) == 0) {
+        LED[(i + pos + LED_COUNT) % LED_COUNT] = color;
+      }
+      else {
+        LED[(i + pos + LED_COUNT) % LED_COUNT] = black;
 
-  if (delta < 0) {
-    for (int i = 0; i > delta; i--) {
-      LED[(lpos + EYESIZE + i + LED_COUNT) % LED_COUNT] = CRGB::Black;
+      }
     }
+    FastLED.show();
+    lastUpdate = millis();
+    hue++;
   } else {
-    for (int i = 0; i < delta; i++) {
-      LED[(lpos + i + LED_COUNT) % LED_COUNT] = CRGB::Black;
-    }
+    wait((255 - SPEED)*4);
   }
-
-  FastLED.show();
-  fadeall();
 }
+
 void rain(CRGB color) {
   for (int i = 0; i < LED_COUNT; i++) {
     uint8_t scalar = sin8(255 * i / LED_COUNT);
@@ -126,25 +146,30 @@ void rain(CRGB color) {
 }
 
 void rainbow(CRGB color) {
+  if (color == black) {
+    color = CHSV(hue, 255, 255);
+  }
   for (int i = 0; i < LED_COUNT; i++) {
     uint8_t scalar = sin8(255 * i / LED_COUNT);
     int j = (i + pos) % LED_COUNT;
     LED[j] = color;
-    LED[j].fadeLightBy(scalar);
-//    LED[j].nscale8(scalar);
+    LED[j] -= scalar;
+    //    LED[j].fadeLightBy(scalar);
+    //    LED[j].nscale8(scalar);
   }
   FastLED.show();
-//  fadeall();
+  hue++;
+  //  fadeall();
 }
 
 void glitter(CRGB color) {
   if ( random8() <= SPEED) {
-    if (color == CRGB(0,0,0)) {
+    if (color == black) {
       //when input == black, use hue cycle
       LED[ random16(LED_COUNT) ] += CHSV(hue++, 255, random8());
     } else {
       // else use color
-    LED[ random16(LED_COUNT) ] += color;
+      LED[ random16(LED_COUNT) ] += color;
     }
   }
   FastLED.show();
@@ -177,7 +202,7 @@ void progress(uint8_t p, uint8_t b, uint8_t t) {
   LED[split] = CRGB (map( remainder, 0, 1000, 0, 255), 0, 0);
 
   for (int i = split + 1; i < BAR; i++) {
-    LED[i] = CRGB::Black;
+    LED[i] = black;
   }
   for (int i = BAR; i < 172; i++) {
     LED[i] = qblue;
@@ -189,7 +214,7 @@ void progress(uint8_t p, uint8_t b, uint8_t t) {
     LED[i] = CRGB ( 0, map(t, 20, 220, 0, 255), map(t, 20, 220, 255, 0) );
   }
   for (int i = 208; i < LED_COUNT; i++) {
-    LED[i] = CRGB::Black;
+    LED[i] = black;
   }
 
   FastLED.show();
@@ -212,6 +237,7 @@ void onSerial(const uint8_t* buffer, size_t size) {
   if (DEBUG) {
     pSerial.send(buffer, size);
   }
+  NEWS = true;
 
 }
 
@@ -239,6 +265,8 @@ void loop() {
   analogWrite(STATUS_LED, DMX[0]);
   CRGB c = { DMX[2], DMX[1], DMX[3] };
   SPEED = DMX[4];
+  ARG = DMX[5];
+  NEWS = false;
   //  EYESIZE = DMX[5];
 
   if (DMX[0] < 25) {
@@ -246,7 +274,8 @@ void loop() {
   } else if (DMX[0] >= 25 && DMX[0] < 51) {
     cylon(c);
   } else if (DMX[0] >= 51 && DMX[0] < 76) {
-    cylonColor(c);
+    lastUpdate = 0;
+    marquee(c);
   } else if (DMX[0] >= 76 && DMX[0] < 102) {
     rain(c);
   } else if (DMX[0] >= 102 && DMX[0] < 127) {
