@@ -128,21 +128,38 @@ void marquee(CRGB color) {
     lastUpdate = millis();
     hue++;
   } else {
-    wait((255 - SPEED)*4);
+    wait((255 - SPEED) * 4);
   }
 }
 
-void rain(CRGB color) {
+void wave(CRGB color) {
   for (int i = 0; i < LED_COUNT; i++) {
-    uint8_t scalar = sin8(255 * i / LED_COUNT);
+    uint8_t scalar = sin8((float)0xFF * i / LED_COUNT);
+    
+    //    uint8_t scalar = sin8((fract8) 0xFF * i / LED_COUNT);
     int j = (i + pos) % LED_COUNT;
-    LED[j].r = qadd8(color.r, scalar);
-    LED[j].g = qadd8(color.g, scalar);
-    LED[j].b = qadd8(color.b, scalar);
+    LED[j] = color;
+    LED[j].fadeLightBy(scalar);
 
   }
   FastLED.show();
+  fadeall();
+}
 
+void waves(CRGB color) {
+  for (int i = 0; i < LED_COUNT; i++) {
+    //    fract8 n = (i * 256) / LED_COUNT;
+    //    int p = (i + pos) % LED_COUNT;
+    //    int s = sin8(n);
+    //    LED[p].r = scale8(color.r, s);
+    //    LED[p].g = scale8(color.g, s);
+    //    LED[p].b = scale8(color.b, s);
+    uint8_t scalar = sin8((float) ARG * 0xFF * i / LED_COUNT);
+    int j = (i + pos) % LED_COUNT;
+    LED[j] = color;
+    LED[j].fadeLightBy(scalar);
+  }
+  FastLED.show();
 }
 
 void rainbow(CRGB color) {
@@ -150,11 +167,11 @@ void rainbow(CRGB color) {
     color = CHSV(hue, 255, 255);
   }
   for (int i = 0; i < LED_COUNT; i++) {
-    uint8_t scalar = sin8(255 * i / LED_COUNT);
+    uint8_t scalar = sin8((256 * i) / LED_COUNT);
     int j = (i + pos) % LED_COUNT;
     LED[j] = color;
-    LED[j] -= scalar;
-    //    LED[j].fadeLightBy(scalar);
+    //    LED[j] -= scalar;
+    LED[j].fadeLightBy(scalar);
     //    LED[j].nscale8(scalar);
   }
   FastLED.show();
@@ -277,13 +294,13 @@ void loop() {
     lastUpdate = 0;
     marquee(c);
   } else if (DMX[0] >= 76 && DMX[0] < 102) {
-    rain(c);
+    wave(c);
   } else if (DMX[0] >= 102 && DMX[0] < 127) {
-    rainbow(c);
+    waves(c);
   } else if (DMX[0] >= 127 && DMX[0] < 153) {
-    glitter(c);
+    rainbow(c);
   } else if (DMX[0] >= 153 && DMX[0] < 178) {
-
+    glitter(c);
   } else if (DMX[0] >= 178 && DMX[0] < 204) {
     glitterRandom(c);
   } else if (DMX[0] >= 204 && DMX[0] < 229) {
