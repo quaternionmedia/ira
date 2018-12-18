@@ -1,4 +1,5 @@
 #define DEBUG true
+#include <EEPROM.h>
 
 #include <Wire.h>
 #define STATUS_LED 13
@@ -132,34 +133,18 @@ void marquee(CRGB color) {
   }
 }
 
-void wave(CRGB color) {
-  for (int i = 0; i < LED_COUNT; i++) {
-    uint8_t scalar = sin8((float)0xFF * i / LED_COUNT);
-    
-    //    uint8_t scalar = sin8((fract8) 0xFF * i / LED_COUNT);
-    int j = (i + pos) % LED_COUNT;
-    LED[j] = color;
-    LED[j].fadeLightBy(scalar);
-
-  }
-  FastLED.show();
-  fadeall();
-}
-
 void waves(CRGB color) {
+  if (color == black) {
+    color = CHSV(hue, 255, 255);
+  }
   for (int i = 0; i < LED_COUNT; i++) {
-    //    fract8 n = (i * 256) / LED_COUNT;
-    //    int p = (i + pos) % LED_COUNT;
-    //    int s = sin8(n);
-    //    LED[p].r = scale8(color.r, s);
-    //    LED[p].g = scale8(color.g, s);
-    //    LED[p].b = scale8(color.b, s);
     uint8_t scalar = sin8((float) ARG * 0xFF * i / LED_COUNT);
     int j = (i + pos) % LED_COUNT;
     LED[j] = color;
-    LED[j].fadeLightBy(scalar);
+    LED[j].nscale8(scalar);
   }
   FastLED.show();
+  hue++;
 }
 
 void rainbow(CRGB color) {
@@ -242,14 +227,14 @@ void newData(int n) {
   for (int i = 0; i < n; i++) {
     DMX[i] = Wire.read();
   }
-  //  Serial.write(DMX, DMX_CHANNELS);
+  //  if (DEBUG) {
+  //    Serial.write(DMX, DMX_CHANNELS);
+  //  }
 }
 
 void onSerial(const uint8_t* buffer, size_t size) {
   memcpy(DMX, buffer, min(size, DMX_CHANNELS));
-  //  for (int i = 0; i < size; i++) {
-  //    DMX[i] = buffer[i];
-  //  }
+
   //  analogWrite(STATUS_LED, buffer[0]);
   if (DEBUG) {
     pSerial.send(buffer, size);
@@ -272,9 +257,12 @@ void setup() {
   //  LED.setOutput(LED_PIN);
   LEDS.addLeds<WS2812, LED_PIN, RGB>(LED, LED_COUNT);
 
-  DMX[1] = 255;
-  DMX[2] = 255;
-  DMX[3] = 255;
+//  DMX[1] = 255;
+//  DMX[2] = 255;
+//  DMX[3] = 255;
+for (int i = 0; i < DMX_CHANNELS; i++) {
+       EEPROM.get(i, DMX[i]);
+    }
 }
 
 void loop() {
@@ -283,6 +271,11 @@ void loop() {
   CRGB c = { DMX[2], DMX[1], DMX[3] };
   SPEED = DMX[4];
   ARG = DMX[5];
+  if (NEWS) {
+    for (int i = 0; i < DMX_CHANNELS; i++) {
+      EEPROM.put(i, DMX[i]);
+    }
+  }
   NEWS = false;
   //  EYESIZE = DMX[5];
 
@@ -294,7 +287,7 @@ void loop() {
     lastUpdate = 0;
     marquee(c);
   } else if (DMX[0] >= 76 && DMX[0] < 102) {
-    wave(c);
+
   } else if (DMX[0] >= 102 && DMX[0] < 127) {
     waves(c);
   } else if (DMX[0] >= 127 && DMX[0] < 153) {
