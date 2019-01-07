@@ -18,8 +18,8 @@ volatile uint8_t DMX[DMX_CHANNELS];
 #define LED_PIN 6
 
 //WS2812 LED(LED_COUNT);
-CRGB LED[LED_COUNT];
-
+//CRGB *LED[LED_COUNT];
+CRGBArray <LED_COUNT> LED;
 
 CRGB black = CRGB(0, 0, 0);
 CRGB qblue = CRGB( 163, 183, 228 );
@@ -131,6 +131,17 @@ void marquee(CRGB color) {
   } else {
     wait((255 - SPEED) * 4);
   }
+}
+
+void wipe(CRGB color) {
+  for (int i = 0; i < LED_COUNT; i++) {
+    LED[i] = CRGB( 
+      i <= map(color.r, 0,255,0,LED_COUNT) ? 255 : 0,
+      i <= map(color.g, 0,255,0,LED_COUNT) ? 255 : 0,
+      i <= map(color.b, 0,255,0,LED_COUNT) ? 255 : 0
+    );      
+  }
+  FastLED.show();
 }
 
 void waves(CRGB color) {
@@ -257,12 +268,12 @@ void setup() {
   //  LED.setOutput(LED_PIN);
   LEDS.addLeds<WS2812, LED_PIN, RGB>(LED, LED_COUNT);
 
-//  DMX[1] = 255;
-//  DMX[2] = 255;
-//  DMX[3] = 255;
-for (int i = 0; i < DMX_CHANNELS; i++) {
-       EEPROM.get(i, DMX[i]);
-    }
+  //  DMX[1] = 255;
+  //  DMX[2] = 255;
+  //  DMX[3] = 255;
+  for (int i = 0; i < DMX_CHANNELS; i++) {
+    EEPROM.get(i, DMX[i]);
+  }
 }
 
 void loop() {
@@ -287,7 +298,7 @@ void loop() {
     lastUpdate = 0;
     marquee(c);
   } else if (DMX[0] >= 76 && DMX[0] < 102) {
-
+    wipe(c);
   } else if (DMX[0] >= 102 && DMX[0] < 127) {
     waves(c);
   } else if (DMX[0] >= 127 && DMX[0] < 153) {
