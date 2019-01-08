@@ -135,7 +135,7 @@ void marquee(CRGB color) {
 
 void wipe(CRGB color) {
   for (int i = 0; i < LED_COUNT; i++) {
-    LED[i] = CRGB( 
+    LED[(i + pos) % LED_COUNT] = CRGB( 
       i <= map(color.r, 0,255,0,LED_COUNT) ? 255 : 0,
       i <= map(color.g, 0,255,0,LED_COUNT) ? 255 : 0,
       i <= map(color.b, 0,255,0,LED_COUNT) ? 255 : 0
@@ -163,12 +163,7 @@ void rainbow(CRGB color) {
     color = CHSV(hue, 255, 255);
   }
   for (int i = 0; i < LED_COUNT; i++) {
-    uint8_t scalar = sin8((256 * i) / LED_COUNT);
-    int j = (i + pos) % LED_COUNT;
-    LED[j] = color;
-    //    LED[j] -= scalar;
-    LED[j].fadeLightBy(scalar);
-    //    LED[j].nscale8(scalar);
+    LED[(pos + i) % LED_COUNT] = CHSV(sin8((i+hue)%256), 255, ARG);
   }
   FastLED.show();
   hue++;
