@@ -1,0 +1,53 @@
+<html>
+ira
+<style>
+.slidercontainer {
+  width: 100%;
+}
+input {
+  width:100%;
+}
+</style>
+
+
+<div class="slidercontainer">
+{% for i in range(6) %}
+<input type="range" min=0 max="255" value=0 class="slider" id={{ i }} oninput="sendValues()" ></br>
+{% endfor %}
+</div>
+<div id="result"></div>
+
+
+<script>
+lastSend = new Date();
+result = document.getElementById("result");
+
+function sendValues() {
+  now = new Date();
+  if (now - lastSend > 50) {
+      args = "?program=";
+    for (i = 0; i < 6; i++) {
+      args = args + document.getElementById(i).value + ",";
+    }
+
+      console.log("sending values", args);
+    ajax(args);
+    lastSend = new Date();
+  }
+}
+
+function ajax(arg) {
+
+
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+     result.innerHTML = this.responseText;
+    }
+  };
+  xhttp.open("GET", "ira" + arg, true);
+  xhttp.send();
+}
+
+</script>
+</html>

@@ -1,4 +1,4 @@
-#define DEBUG true
+#define DEBUG false
 #include <EEPROM.h>
 
 #include <Wire.h>
@@ -204,6 +204,10 @@ void chaser(CRGB color) {
   }
   FastLED.show();
 
+}
+
+void demo() {
+  
 }
 
 void progress(uint8_t p, uint8_t b, uint8_t t) {
