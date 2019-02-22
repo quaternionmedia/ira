@@ -1,5 +1,5 @@
 <html>
-ira
+<h1>ira</h1>
 <style>
 .slidercontainer {
   width: 100%;
@@ -11,8 +11,9 @@ input {
 
 
 <div class="slidercontainer">
-{% for i in range(6) %}
-<input type="range" min=0 max="255" value=0 class="slider" id={{ i }} oninput="sendValues()" ></br>
+{% for i in channels %}
+<label for="slider{{ loop.index }}">{{ i }}</label>
+<input type="range" min=0 max="255" value=0 class="slider" id=slider{{ loop.index }} oninput="sendValues()" ></br>
 {% endfor %}
 </div>
 <div id="result"></div>
@@ -26,8 +27,8 @@ function sendValues() {
   now = new Date();
   if (now - lastSend > 50) {
       args = "?program=";
-    for (i = 0; i < 6; i++) {
-      args = args + document.getElementById(i).value + ",";
+    for (i = 1; i < 8; i++) {
+      args = args + document.getElementById("slider" + i).value + ",";
     }
 
       console.log("sending values", args);
