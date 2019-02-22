@@ -1,19 +1,25 @@
 #!/usr/local/bin/python3.7
 
-import hug
+from starlette.applications import Starlette
+from starlette.responses import HTMLResponse, PlainTextResponse, UJSONResponse
+from starlette.endpoints import WebSocketEndpoint
+import uvicorn
 import packet
-from jinja2 import FileSystemLoader, Environment
 
-templates = Environment(loader=FileSystemLoader("templates"))
-
+app = Starlette(template_directory='templates')
 current = ''
 
-@hug.get('/ira')
-def ira(program: hug.types.multiple):
+@app.route('/ira')
+def ira(request):
+    program = request.query_params['program'][:-1].split(',')
+    print(f'program {program}')
     program = [int(p) for p in program]
     print('ira got ', program)
-    return packet.send(*program)
+    return PlainTextResponse(str(packet.send(*program)))
 
-@hug.get('/', output=hug.output_format.html)
-def home():
-    return templates.get_template('home.html').render()
+@app.route('/')
+def home(request):
+    return HTMLResponse(app.get_template('home.html').render())
+
+if __name__ == '__main__':
+    uvicorn.run(app, host='0.0.0.0', port=8000)
