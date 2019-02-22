@@ -5,7 +5,7 @@
 #define STATUS_LED 13
 #define I2C_ADDRESS 42
 
-#define DMX_CHANNELS 6
+#define DMX_CHANNELS 7
 volatile uint8_t DMX[DMX_CHANNELS];
 //uint8_t DMX[DMX_CHANNELS];
 
@@ -57,13 +57,13 @@ void positionIncrement() {
     delta = -1;
     //    delay((SPEED - 64) * 2 );
 
-    wait((SPEED - 32) * 3);
+    wait((SPEED - 16) * 2);
   } else if (SPEED == 128) {
     delta = 0;
     //freeze
   } else if (SPEED > 128 && SPEED < 240) {
     delta = 1;
-    wait((240 - SPEED) * 3);
+    wait((240 - SPEED) * 2);
   } else if (SPEED >= 240) {
     delta = SPEED-240;
   }
@@ -73,7 +73,7 @@ void positionIncrement() {
 
 void wait(int t) {
   unsigned long endTime = millis() + t;
-  while (millis() <= endTime && !NEWS) {
+  while (millis() <= endTime) {
 //    delay(0);
     pSerial.update();
 
@@ -205,8 +205,12 @@ void chaser(CRGB color) {
 
 }
 
-void demo() {
-  
+void newCylon(CRGB color) {
+  for (CRGB & pixel : LED(pos, pos+EYESIZE)) {
+    pixel = color;
+  }
+  LED.fadeToBlackBy(40);
+  FastLED.show();
 }
 
 void progress(uint8_t p, uint8_t b, uint8_t t) {
@@ -284,14 +288,15 @@ void loop() {
   analogWrite(STATUS_LED, DMX[0]);
   CRGB c = { DMX[2], DMX[1], DMX[3] };
   SPEED = DMX[4];
-  ARG = DMX[5];
+  EYESIZE = DMX[5];
+  ARG = DMX[6];
+
   if (NEWS) {
     for (int i = 0; i < DMX_CHANNELS; i++) {
       EEPROM.put(i, DMX[i]);
     }
   }
   NEWS = false;
-  //  EYESIZE = DMX[5];
 
   if (DMX[0] < 25) {
     wash(c);
@@ -312,7 +317,9 @@ void loop() {
     glitterRandom(c);
   } else if (DMX[0] >= 204 && DMX[0] < 229) {
     chaser(c);
-  } else if (DMX[0] >= 229 && DMX[0] <= 255) {
+  } else if (DMX[0] >= 229 && DMX[0] < 255) {
+    newCylon(c);
+  } else if (DMX[0] == 255) {
     progress(DMX[1], DMX[2], DMX[3]);
     //  // else {error();}
   }
