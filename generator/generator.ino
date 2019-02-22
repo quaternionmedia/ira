@@ -51,22 +51,21 @@ void fadeall() {
 
 void positionIncrement() {
   lpos = pos;
-  if (SPEED < 64) {
-    delta = SPEED - 65;
-  } else if (SPEED >= 64 && SPEED < 128) {
+  if (SPEED < 16) {
+    delta = SPEED - 17;
+  } else if (SPEED >= 16 && SPEED < 128) {
     delta = -1;
     //    delay((SPEED - 64) * 2 );
 
-    wait((SPEED - 64) * 4 );
+    wait((SPEED - 32) * 3);
   } else if (SPEED == 128) {
     delta = 0;
     //freeze
-  } else if (SPEED > 128 && SPEED <= 192) {
+  } else if (SPEED > 128 && SPEED < 240) {
     delta = 1;
-    //    delay((192 - SPEED) * 2 );
-    wait((192 - SPEED) * 4 );
-  } else if (SPEED > 192) {
-    delta = SPEED - 191;
+    wait((240 - SPEED) * 3);
+  } else if (SPEED >= 240) {
+    delta = SPEED-240;
   }
   pos = (pos + delta + LED_COUNT) % LED_COUNT;
 
@@ -75,7 +74,7 @@ void positionIncrement() {
 void wait(int t) {
   unsigned long endTime = millis() + t;
   while (millis() <= endTime && !NEWS) {
-    delay(1);
+//    delay(0);
     pSerial.update();
 
   }
