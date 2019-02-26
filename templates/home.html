@@ -25,10 +25,10 @@ result = document.getElementById("result");
 
 function sendValues() {
   now = new Date();
-  if (now - lastSend > 50) {
-      args = "?program=";
+  if (now - lastSend > 30) {
+      args = "?";
     for (i = 1; i < 8; i++) {
-      args = args + document.getElementById("slider" + i).value + ",";
+      args += "program=" + document.getElementById("slider" + i).value + '&';
     }
 
       console.log("sending values", args);
