@@ -31,7 +31,7 @@ uint8_t EYESIZE = 10;
 int pos = 0;
 int lpos = pos;
 int delta = 0;
-static uint8_t hue = 0;
+volatile uint8_t hue = 0;
 unsigned long lastUpdate = 0;
 volatile bool NEWS = false;
 
@@ -65,7 +65,7 @@ void positionIncrement() {
     delta = 1;
     wait((240 - SPEED) * 2);
   } else if (SPEED >= 240) {
-    delta = SPEED-240;
+    delta = SPEED - 240;
   }
   pos = (pos + delta + LED_COUNT) % LED_COUNT;
 
@@ -74,7 +74,7 @@ void positionIncrement() {
 void wait(int t) {
   unsigned long endTime = millis() + t;
   while (millis() <= endTime) {
-//    delay(0);
+    //    delay(0);
     pSerial.update();
 
   }
@@ -134,11 +134,11 @@ void marquee(CRGB color) {
 
 void wipe(CRGB color) {
   for (int i = 0; i < LED_COUNT; i++) {
-    LED[(i + pos) % LED_COUNT] = CRGB( 
-      i <= map(color.r, 0,255,0,LED_COUNT) ? 255 : 0,
-      i <= map(color.g, 0,255,0,LED_COUNT) ? 255 : 0,
-      i <= map(color.b, 0,255,0,LED_COUNT) ? 255 : 0
-    );      
+    LED[(i + pos) % LED_COUNT] = CRGB(
+                                   i < map(color.r, 0, 255, 0, LED_COUNT) ? 255 : 0,
+                                   i < map(color.g, 0, 255, 0, LED_COUNT) ? 255 : 0,
+                                   i < map(color.b, 0, 255, 0, LED_COUNT) ? 255 : 0
+                                 );
   }
   FastLED.show();
 }
@@ -161,11 +161,17 @@ void rainbow(CRGB color) {
   if (color == black) {
     color = CHSV(hue, 255, 255);
   }
-  for (int i = 0; i < LED_COUNT; i++) {
-    LED[(pos + i) % LED_COUNT] = CHSV(sin8((i+hue)%256), 255, ARG);
+  uint8_t thisHue = hue;
+  int cycles = floor(LED_COUNT / EYESIZE);
+  for (int i = 0; i < cycles; i++) {
+    for (CRGB & pixel : LED(i*EYESIZE , min((i+1)*EYESIZE, LED_COUNT))) {
+      pixel = CHSV((thisHue + (i*ARG)) % 256, 255, 255);
+    }
+    thisHue = (thisHue + ARG) % 255;
+  
   }
-  FastLED.show();
   hue++;
+  FastLED.show();
   //  fadeall();
 }
 
@@ -201,10 +207,19 @@ void chaser(CRGB color) {
 }
 
 void newCylon(CRGB color) {
-  for (CRGB & pixel : LED(pos, pos+EYESIZE)) {
-    pixel = color;
+  if ((pos + EYESIZE) >= LED_COUNT) {
+    for (CRGB & pixel : LED(pos, LED_COUNT)) {
+      pixel = color;
+    }
+    for (CRGB & pixel : LED(0, (pos + EYESIZE) % LED_COUNT)) {
+      pixel = color;
+    }
+  } else {
+    for (CRGB & pixel : LED(pos, (pos + EYESIZE) % LED_COUNT)) {
+      pixel = color;
+    }
   }
-  LED.fadeToBlackBy(40);
+  LED.fadeToBlackBy(90);
   FastLED.show();
 }
 
