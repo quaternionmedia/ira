@@ -5,11 +5,11 @@ from datetime import datetime
 LIGHTS_ON = 15
 
 commands = [
-    # [125,50,0,0,190],
-    # [204,0,255,0,190],
-    [127,0,0,0,180]
+    [75,0,0,0,80,8],
+    [125,0,0,0,190, 10],
+    [175,0,0,0,192]
     ]
-delay = 15
+delay = 10
 print('loading...')
 sleep(2)
 while True:

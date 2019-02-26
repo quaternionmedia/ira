@@ -3,10 +3,10 @@
 LED signal generator. Needs [Controller](../dmx/dmx.ino) to tell it what to do.
 ### Dependencies
 Install the following  Arduino Libraries:
-###### FastLED:
+##### FastLED:
 - https://github.com/FastLED/FastLED
 
-###### PacketSerial (optional)
+##### PacketSerial (optional)
 - https://github.com/bakercp/PacketSerial
 
 
