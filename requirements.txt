@@ -1,2 +1,4 @@
 pyserial
 cobs
+fastapi
+uvicorn
