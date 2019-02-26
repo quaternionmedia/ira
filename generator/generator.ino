@@ -1,11 +1,11 @@
-#define DEBUG true
+#define DEBUG false
 #include <EEPROM.h>
 
 #include <Wire.h>
 #define STATUS_LED 13
 #define I2C_ADDRESS 42
 
-#define DMX_CHANNELS 6
+#define DMX_CHANNELS 7
 volatile uint8_t DMX[DMX_CHANNELS];
 //uint8_t DMX[DMX_CHANNELS];
 
@@ -51,22 +51,21 @@ void fadeall() {
 
 void positionIncrement() {
   lpos = pos;
-  if (SPEED < 64) {
-    delta = SPEED - 65;
-  } else if (SPEED >= 64 && SPEED < 128) {
+  if (SPEED < 16) {
+    delta = SPEED - 17;
+  } else if (SPEED >= 16 && SPEED < 128) {
     delta = -1;
     //    delay((SPEED - 64) * 2 );
 
-    wait((SPEED - 64) * 4 );
+    wait((SPEED - 16) * 2);
   } else if (SPEED == 128) {
     delta = 0;
     //freeze
-  } else if (SPEED > 128 && SPEED <= 192) {
+  } else if (SPEED > 128 && SPEED < 240) {
     delta = 1;
-    //    delay((192 - SPEED) * 2 );
-    wait((192 - SPEED) * 4 );
-  } else if (SPEED > 192) {
-    delta = SPEED - 191;
+    wait((240 - SPEED) * 2);
+  } else if (SPEED >= 240) {
+    delta = SPEED-240;
   }
   pos = (pos + delta + LED_COUNT) % LED_COUNT;
 
@@ -74,8 +73,8 @@ void positionIncrement() {
 
 void wait(int t) {
   unsigned long endTime = millis() + t;
-  while (millis() <= endTime && !NEWS) {
-    delay(1);
+  while (millis() <= endTime) {
+//    delay(0);
     pSerial.update();
 
   }
@@ -201,6 +200,14 @@ void chaser(CRGB color) {
 
 }
 
+void newCylon(CRGB color) {
+  for (CRGB & pixel : LED(pos, pos+EYESIZE)) {
+    pixel = color;
+  }
+  LED.fadeToBlackBy(40);
+  FastLED.show();
+}
+
 void progress(uint8_t p, uint8_t b, uint8_t t) {
   int split = BAR * p / 100;
   int remainder = (BAR * p / 100 - split) * 1000;
@@ -276,14 +283,15 @@ void loop() {
   analogWrite(STATUS_LED, DMX[0]);
   CRGB c = { DMX[2], DMX[1], DMX[3] };
   SPEED = DMX[4];
-  ARG = DMX[5];
+  EYESIZE = DMX[5];
+  ARG = DMX[6];
+
   if (NEWS) {
     for (int i = 0; i < DMX_CHANNELS; i++) {
       EEPROM.put(i, DMX[i]);
     }
   }
   NEWS = false;
-  //  EYESIZE = DMX[5];
 
   if (DMX[0] < 25) {
     wash(c);
@@ -304,7 +312,9 @@ void loop() {
     glitterRandom(c);
   } else if (DMX[0] >= 204 && DMX[0] < 229) {
     chaser(c);
-  } else if (DMX[0] >= 229 && DMX[0] <= 255) {
+  } else if (DMX[0] >= 229 && DMX[0] < 255) {
+    newCylon(c);
+  } else if (DMX[0] == 255) {
     progress(DMX[1], DMX[2], DMX[3]);
     //  // else {error();}
   }

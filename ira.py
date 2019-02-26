@@ -1,29 +1,28 @@
-class Os:
-    pass
+#!/usr/local/bin/python3.7
 
-class Comms:
-    pass
+from fastapi import FastAPI, Query
+from starlette.responses import HTMLResponse
+from starlette.templating import Jinja2Templates
 
-class Routing:
-    pass
+from typing import List, Tuple
+import uvicorn
 
-class Analog:
-    pass
+import packet
 
-class Annotations:
-    pass
+app = FastAPI(template_directory='templates')
+templates = Jinja2Templates('templates')
+current = ''
 
-class Lights:
-    pass
+channels = ['program', 'red', 'green', 'blue', 'speed', 'eyesize', 'arg1', 'arg2']
 
-class Video:
-    pass
+@app.get('/ira')
+def ira(program: List[int] = Query(None)):
+    print('ira got ', program)
+    return program
 
-class Script:
-    pass
+@app.get('/')
+def home():
+    return HTMLResponse(templates.get_template('home.html').render(channels=channels))
 
-class Audio:
-    pass
-
-class Music:
-    pass
+if __name__ == '__main__':
+    uvicorn.run(app, host='0.0.0.0', port=8000)

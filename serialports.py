@@ -1,3 +1,4 @@
+#!/usr/local/bin/python3.7
 import sys
 import glob
 import serial
@@ -30,3 +31,6 @@ def serial_ports():
         except (OSError, serial.SerialException):
             pass
     return result
+
+if __name__ == "__main__":
+    print(serial_ports())
