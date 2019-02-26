@@ -8,10 +8,11 @@ from time import sleep
 
 s = Serial(port, BAUD, )
 
-def send(*args):
-	p = cobs.encode(pack('>{}B'.format(len(args)), *args)) + b'\x00'
+def send(values):
+	print(f'serial sending {values}')
+	p = cobs.encode(pack('>{}B'.format(len(values)), *values)) + b'\x00'
 	s.write(p)
-	return args
+	return values
 	# sleep(.3)
 	# if s.in_waiting:
 	# 	result = s.read(s.in_waiting)

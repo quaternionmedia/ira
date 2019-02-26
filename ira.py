@@ -18,7 +18,7 @@ channels = ['program', 'red', 'green', 'blue', 'speed', 'eyesize', 'arg1', 'arg2
 @app.get('/ira')
 def ira(program: List[int] = Query(None)):
     print('ira got ', program)
-    return program
+    return packet.send(program)
 
 @app.get('/')
 def home():
