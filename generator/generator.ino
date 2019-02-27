@@ -164,9 +164,9 @@ void rainbow(CRGB color) {
   }
   uint8_t thisHue = hue;
   int cycles = floor(LED_COUNT / EYESIZE);
-  for (int i = 0; i < cycles; i++) {
+  for (int i = 0; i <= cycles; i++) {
     for (CRGB & pixel : LED(i*EYESIZE , min((i+1)*EYESIZE, LED_COUNT))) {
-      pixel = CHSV((thisHue + (i*ARG)) % 256, ARG2, ARG2);
+      pixel = CHSV((thisHue + (i*ARG)) % 256, 255, ARG2);
     }
     thisHue = (thisHue + ARG) % 255;
   
@@ -174,6 +174,24 @@ void rainbow(CRGB color) {
   hue++;
   FastLED.show();
   //  fadeall();
+}
+
+void newRainbow(CRGB color) {
+  uint8_t thisHue = hue;
+  for (int i = pos; i < LED_COUNT; i++) {
+    if (i % EYESIZE == 0) {
+    thisHue = (thisHue + ARG) % 256;
+    }
+    LED[i] = CHSV(thisHue, 255, ARG2);
+  }
+  for (int i = 0; i < pos; i++) {
+    if (i % EYESIZE == 0) {
+    thisHue = (thisHue + ARG) % 256;
+    }
+    LED[i] = CHSV(thisHue, 255, ARG2);
+  }
+  FastLED.show();
+  hue++;
 }
 
 void glitter(CRGB color) {
@@ -326,7 +344,7 @@ void loop() {
   } else if (DMX[0] >= 102 && DMX[0] < 127) {
     waves(c);
   } else if (DMX[0] >= 127 && DMX[0] < 153) {
-    rainbow(c);
+    newRainbow(c);
   } else if (DMX[0] >= 153 && DMX[0] < 178) {
     glitter(c);
   } else if (DMX[0] >= 178 && DMX[0] < 204) {
