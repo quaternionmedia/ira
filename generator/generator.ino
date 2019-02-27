@@ -165,11 +165,11 @@ void rainbow(CRGB color) {
   uint8_t thisHue = hue;
   int cycles = floor(LED_COUNT / EYESIZE);
   for (int i = 0; i <= cycles; i++) {
-    for (CRGB & pixel : LED(i*EYESIZE , min((i+1)*EYESIZE, LED_COUNT))) {
-      pixel = CHSV((thisHue + (i*ARG)) % 256, 255, ARG2);
+    for (CRGB & pixel : LED(i * EYESIZE , min((i + 1)*EYESIZE, LED_COUNT))) {
+      pixel = CHSV((thisHue + (i * ARG)) % 256, 255, ARG2);
     }
     thisHue = (thisHue + ARG) % 255;
-  
+
   }
   hue++;
   FastLED.show();
@@ -180,13 +180,13 @@ void newRainbow(CRGB color) {
   uint8_t thisHue = hue;
   for (int i = pos; i < LED_COUNT; i++) {
     if (i % EYESIZE == 0) {
-    thisHue = (thisHue + ARG) % 256;
+      thisHue += ARG;
     }
     LED[i] = CHSV(thisHue, 255, ARG2);
   }
   for (int i = 0; i < pos; i++) {
     if (i % EYESIZE == 0) {
-    thisHue = (thisHue + ARG) % 256;
+      thisHue += ARG;
     }
     LED[i] = CHSV(thisHue, 255, ARG2);
   }
@@ -226,7 +226,7 @@ void chaser(CRGB color) {
 }
 
 void newCylon(CRGB color) {
-    if (color == black) {
+  if (color == black) {
     color = CHSV(hue, 255, 255);
   }
   if ((pos + EYESIZE) >= LED_COUNT) {

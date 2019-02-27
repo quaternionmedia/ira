@@ -27,7 +27,7 @@ function sendValues() {
   now = new Date();
   if (now - lastSend > 50) {
       args = "?";
-    for (i = 1; i < 8; i++) {
+    for (i = 1; i <= 8; i++) {
       args += "program=" + document.getElementById("slider" + i).value + '&';
     }
 
