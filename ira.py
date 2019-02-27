@@ -3,7 +3,7 @@
 from fastapi import FastAPI, Query
 from starlette.responses import HTMLResponse
 from starlette.templating import Jinja2Templates
-
+from async_exec import run
 from typing import List, Tuple
 import uvicorn
 
@@ -16,12 +16,20 @@ current = ''
 channels = ['program', 'red', 'green', 'blue', 'speed', 'eyesize', 'arg1', 'arg2']
 
 @app.get('/ira')
-def ira(program: List[int] = Query(None)):
+async def ira(program: List[int] = Query(None)):
     print('ira got ', program)
     return packet.send(program)
 
+@app.get('/upload')
+async def upload():
+    compiled = 'arduino-cli compile -b arduino:avr:uno generator'
+    results = await run(compiled.split(' '))
+    uploaded = 'arduino-cli upload -b arduino:avr:uno -p /dev/tty.usbmodem14201 -v generator'
+    results += await run(uploaded.split(' '))
+    return results
+
 @app.get('/')
-def home():
+async def home():
     return HTMLResponse(templates.get_template('home.html').render(channels=channels))
 
 if __name__ == '__main__':
