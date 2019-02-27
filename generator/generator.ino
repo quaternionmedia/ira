@@ -5,7 +5,7 @@
 #define STATUS_LED 13
 #define I2C_ADDRESS 42
 
-#define DMX_CHANNELS 7
+#define DMX_CHANNELS 8
 volatile uint8_t DMX[DMX_CHANNELS];
 //uint8_t DMX[DMX_CHANNELS];
 
@@ -27,6 +27,7 @@ CRGB last;
 
 uint8_t SPEED = 127;
 uint8_t ARG = 0;
+uint8_t ARG2 = 0;
 uint8_t EYESIZE = 10;
 int pos = 0;
 int lpos = pos;
@@ -165,7 +166,7 @@ void rainbow(CRGB color) {
   int cycles = floor(LED_COUNT / EYESIZE);
   for (int i = 0; i < cycles; i++) {
     for (CRGB & pixel : LED(i*EYESIZE , min((i+1)*EYESIZE, LED_COUNT))) {
-      pixel = CHSV((thisHue + (i*ARG)) % 256, 255, 255);
+      pixel = CHSV((thisHue + (i*ARG)) % 256, ARG2, ARG2);
     }
     thisHue = (thisHue + ARG) % 255;
   
@@ -207,6 +208,9 @@ void chaser(CRGB color) {
 }
 
 void newCylon(CRGB color) {
+    if (color == black) {
+    color = CHSV(hue, 255, 255);
+  }
   if ((pos + EYESIZE) >= LED_COUNT) {
     for (CRGB & pixel : LED(pos, LED_COUNT)) {
       pixel = color;
@@ -219,8 +223,9 @@ void newCylon(CRGB color) {
       pixel = color;
     }
   }
-  LED.fadeToBlackBy(90);
+  LED.fadeToBlackBy(ARG);
   FastLED.show();
+  hue++;
 }
 
 void progress(uint8_t p, uint8_t b, uint8_t t) {
@@ -300,6 +305,7 @@ void loop() {
   SPEED = DMX[4];
   EYESIZE = DMX[5];
   ARG = DMX[6];
+  ARG2 = DMX[7];
 
   if (NEWS) {
     for (int i = 0; i < DMX_CHANNELS; i++) {
