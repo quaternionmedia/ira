@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- Load the Paper.js library -->
+  <script type="text/javascript" src="static/paper-full.js"></script>
+  <!-- Define inlined PaperScript associate it with myCanvas -->
+  <script type="text/paperscript" canvas="myCanvas">
+  var leds = [];
+  var start = new Point(5, 5);
+  var pixelSize = 2;
+
+  var LED_COUNT = 300;
+  var pos = 0;
+  var hue = 0;
+  var EYESIZE = 10;
+  var color = [255, 0, 0];
+  var ARG = 10;
+  var black = new Color('rgb(0,0,0)')
+
+  function createLEDs(n) {
+    var col = Math.ceil(view.size.width / start.x);
+    var rows = Math. floor(LED_COUNT/col);
+    // console.log('making ', rows, col, view.size.width)
+    var r = 0;
+    var c = 0;
+    for (var i = 1; i <= n; i++) {
+      var x = new Point(start.x*(c+1), start.y*(r+1));
+      console.log(i, 'new led at', x);
+      var cir = new Path.Circle(x, pixelSize);
+      // cir.strokeColor = 'black';
+      cir.fillColor = 'black';
+      leds[i-1] = cir;
+      if (i % col == 0) {
+        r++;
+        c = 0;
+      } else {
+        c++;
+      }
+
+    }
+  }
+  createLEDs(LED_COUNT);
+
+
+  function setLEDto(led, r, g, b) {
+    var s = 'rgb(' + r + ',' + g + ',' + b + ')';
+    leds[led].fillColor = new Color(s);
+
+    // console.log('setting ', pixel, ' to ', s);
+  }
+
+  function cylon() {
+    // console.log('cyloning!', color, pos);
+    // if (color == [0,0,0]) {
+    //     color = [hue, 255, 255];
+    //   }
+    if ((pos + EYESIZE) >= LED_COUNT) {
+      for (var i=pos; i < LED_COUNT; i++) {
+        setLEDto(i, color[0], color[1], color[2]);
+      }
+      for (var i=0; i < (pos + EYESIZE) % LED_COUNT; i++) {
+        setLEDto(i, color[0], color[1], color[2]);
+      }
+    } else {
+      for (var i =pos; i < pos + EYESIZE; i++) {
+        setLEDto(i, color[0], color[1], color[2]);
+      }
+    }
+    // FastLED.show();
+    hue = (hue + 1) % 256;
+    pos = (pos + 1) % LED_COUNT;
+    project.view.update();
+
+    fadeAll(ARG);
+  }
+
+  function fadeAll(q) {
+    for (var i = 0; i < LED_COUNT; i++) {
+      var bkg = leds[i].fillColor;
+      // console.log('fading', i, q, bkg);
+      if (bkg != black) {
+        setLEDto(i, Math.floor(256*bkg.red - q), Math.floor(256*bkg.green - q), Math.floor(256*bkg.blue - q));
+      }
+    }
+  }
+
+  setInterval(cylon, 30);
+  // cylon();
+
+
+</script>
+</head>
+<body>
+  <canvas id="myCanvas" resize="true"></canvas>
+</body>
+</html>
