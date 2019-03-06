@@ -1,4 +1,7 @@
 <html>
+<head>
+
+</head>
 <h1>ira</h1>
 <style>
 .slidercontainer {
@@ -7,33 +10,108 @@
 input {
   width:100%;
 }
+#viz {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}
 </style>
 
 
 <div class="slidercontainer">
-{% for i in channels %}
-<label for="slider{{ loop.index }}">{{ i }}</label>
-<input type="range" min=0 max="255" value=0 class="slider" id=slider{{ loop.index }} oninput="sendValues()" ></br>
-{% endfor %}
+  {% for i in channels %}
+  <label for="slider{{ loop.index }}">{{ i }}</label>
+  <input type="range" min=0 max="255" value=0 class="slider" id=slider{{ loop.index }} oninput="sendValues()" ></br>
+  {% endfor %}
 </div>
 <div id="result"></div>
+<div id="viz"></div>
+
+<!-- <canvas id="c"></canvas> -->
 
 
 <script>
 lastSend = new Date();
 result = document.getElementById("result");
+viz = document.getElementById("viz");
 
 function sendValues() {
   now = new Date();
   if (now - lastSend > 50) {
-      args = "?";
+    args = "?";
     for (i = 1; i <= 8; i++) {
       args += "program=" + document.getElementById("slider" + i).value + '&';
     }
 
-      console.log("sending values", args);
+    console.log("sending values", args);
     ajax(args);
     lastSend = new Date();
+  }
+}
+var numToHex = function (num) {
+  var hex = Number(num).toString(16);
+  if (hex.length < 2) {
+    hex = "0" + hex;
+  }
+  return hex;
+};
+
+var spans = [];
+var leds = [];
+var black = [0,0,0];
+
+function createLEDs(n) {
+  for (var i = 0; i < n; i++) {
+    var s = document.createElement("span");
+    s.innerHTML = '&nbsp';
+    s.setAttribute('id', String(i));
+    spans[i] = s;
+    leds[i] = black;
+    viz.appendChild(s);
+  }
+}
+function setLEDto(led, r, g, b) {
+  leds[led] = [r, g, b];
+  var s = 'rgb(' + r + ',' + g + ',' + b + ')';
+  // console.log('setting ', pixel, ' to ', s);
+  spans[led].style["background-color"] = s;
+}
+createLEDs(300);
+var LED_COUNT = 300;
+var pos = 0;
+var hue = 0;
+var EYESIZE = 10;
+var color = [255, 0, 0];
+var ARG = 100;
+
+function cylon() {
+  // if (color == [0,0,0]) {
+  //     color = [hue, 255, 255];
+  //   }
+  if ((pos + EYESIZE) >= LED_COUNT) {
+    for (var i=pos; i < LED_COUNT; i++) {
+      setLEDto(i, color[0], color[1], color[2]);
+    }
+    for (var i=0; i < (pos + EYESIZE) % LED_COUNT; i++) {
+      setLEDto(i, color[0], color[1], color[2]);
+    }
+  } else {
+    for (var i =pos; i < pos + EYESIZE; i++) {
+      setLEDto(i, color[0], color[1], color[2]);
+    }
+  }
+  fadeAll(ARG);
+  // FastLED.show();
+  hue = (hue + 1) % 256;
+  pos = (pos + 1) % LED_COUNT;
+}
+
+function fadeAll(q) {
+  for (var i = 0; i < LED_COUNT; i++) {
+    var bkg = leds[i];
+    if (bkg != black) {
+      setLEDto(i, Math.max(bkg[0]-q, 0), Math.max(bkg[1]-q, 0), Math.max(bkg[2]-q, 0));
+    }
   }
 }
 
@@ -43,7 +121,7 @@ function ajax(arg) {
   var xhttp = new XMLHttpRequest();
   xhttp.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {
-     result.innerHTML = this.responseText;
+      result.innerHTML = this.responseText;
     }
   };
   xhttp.open("GET", "ira" + arg, true);
