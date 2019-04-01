@@ -25,9 +25,10 @@ async def ira(program: List[int] = Query(None)):
 
 @app.get('/upload')
 async def upload():
-    compiled = 'arduino-cli compile -b arduino:avr:uno generator'
+    arduinoType = 'nano:cpu=atmega328old'
+    compiled = f'arduino-cli compile -b arduino:avr:{arduinoType} generator'
     results = await run(compiled.split(' '))
-    uploaded = 'arduino-cli upload -b arduino:avr:uno -p /dev/tty.usbmodem14201 -v generator'
+    uploaded = f'arduino-cli upload -b arduino:avr:{arduinoType} -p /dev/tty.usbserial-1430 -v generator'
     results += await run(uploaded.split(' '))
     return results
 

@@ -69,7 +69,7 @@
     // FastLED.show();
     hue = (hue + 1) % 256;
     pos = (pos + 1) % LED_COUNT;
-    project.view.update();
+    // project.view.update();
 
     fadeAll(ARG);
   }
@@ -84,7 +84,7 @@
     }
   }
 
-  setInterval(cylon, 30);
+  setInterval(cylon, 1);
   // cylon();
 
 

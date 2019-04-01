@@ -5,7 +5,8 @@
 <h1>ira</h1>
 <style>
 .slidercontainer {
-  width: 100%;
+  /* width: 100%; */
+  margin: 2vw;
 }
 input {
   width:100%;
@@ -37,7 +38,7 @@ viz = document.getElementById("viz");
 
 function sendValues() {
   now = new Date();
-  if (now - lastSend > 50) {
+  if (now - lastSend > 80) {
     args = "?";
     for (i = 1; i <= 8; i++) {
       args += "program=" + document.getElementById("slider" + i).value + '&';
@@ -76,13 +77,13 @@ function setLEDto(led, r, g, b) {
   // console.log('setting ', pixel, ' to ', s);
   spans[led].style["background-color"] = s;
 }
-createLEDs(300);
 var LED_COUNT = 300;
 var pos = 0;
 var hue = 0;
 var EYESIZE = 10;
 var color = [255, 0, 0];
 var ARG = 100;
+createLEDs(LED_COUNT);
 
 function cylon() {
   // if (color == [0,0,0]) {

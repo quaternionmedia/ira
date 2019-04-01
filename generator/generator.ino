@@ -159,16 +159,16 @@ void waves(CRGB color) {
 }
 
 void rainbow(CRGB color) {
-  if (color == black) {
-    color = CHSV(hue, 255, 255);
-  }
+  //  if (color == black) {
+  //    color = CHSV(hue, 255, 255);
+  //  }
   uint8_t thisHue = hue;
   int cycles = floor(LED_COUNT / EYESIZE);
   for (int i = 0; i <= cycles; i++) {
     for (CRGB & pixel : LED(i * EYESIZE , min((i + 1)*EYESIZE, LED_COUNT))) {
-      pixel = CHSV((thisHue + (i * ARG)) % 256, 255, ARG2);
+      pixel = CHSV((thisHue + (i * ARG)) % 256, 255, ARG2 + 1);
     }
-    thisHue = (thisHue + ARG) % 255;
+    thisHue = (thisHue + ARG) % 256;
 
   }
   hue++;
@@ -178,20 +178,28 @@ void rainbow(CRGB color) {
 
 void newRainbow(CRGB color) {
   uint8_t thisHue = hue;
-  for (int i = pos; i < LED_COUNT; i++) {
-    if (i % EYESIZE == 0) {
+  //  int i = 0;
+  for (int i = 0; i < LED_COUNT; i++) {
+    if ((i + pos) % EYESIZE == 0) {
+      //      thisHue = (thisHue + ARG) % 256;
       thisHue += ARG;
     }
-    LED[i] = CHSV(thisHue, 255, ARG2);
+    LED[(i + pos) % LED_COUNT] = CHSV(thisHue, 255, ARG2);
   }
-  for (int i = 0; i < pos; i++) {
-    if (i % EYESIZE == 0) {
-      thisHue += ARG;
-    }
-    LED[i] = CHSV(thisHue, 255, ARG2);
-  }
+//  for (int i = 0; i < pos; i++) {
+//    if ((i + pos) % EYESIZE == 0) {
+//      //      thisHue = (thisHue + ARG) % 256;
+//      thisHue += ARG;
+//    }
+//    //for (CRGB & pixel : LED(0, LED_COUNT)) {
+//    LED[i] = CHSV(thisHue, 255, ARG2);
+    //    if (i ) {
+    //
+    //    }
+    //    i++
+//  }
   FastLED.show();
-  hue++;
+//  hue++;
 }
 
 void glitter(CRGB color) {
@@ -244,6 +252,15 @@ void newCylon(CRGB color) {
   LED.fadeToBlackBy(ARG);
   FastLED.show();
   hue++;
+}
+
+void hueCycle(CRGB color) {
+//  for (CRGB & pixel : LED(0, LED_COUNT)) {
+//    pixel = CHSV(hue, ARG, ARG2);
+//  }
+  fill_rainbow(LED, ARG, ARG2);
+  FastLED.show();
+
 }
 
 void progress(uint8_t p, uint8_t b, uint8_t t) {
@@ -335,7 +352,7 @@ void loop() {
   if (DMX[0] < 25) {
     wash(c);
   } else if (DMX[0] >= 25 && DMX[0] < 51) {
-    cylon(c);
+    newCylon(c);
   } else if (DMX[0] >= 51 && DMX[0] < 76) {
     lastUpdate = 0;
     marquee(c);
@@ -352,7 +369,7 @@ void loop() {
   } else if (DMX[0] >= 204 && DMX[0] < 229) {
     chaser(c);
   } else if (DMX[0] >= 229 && DMX[0] < 255) {
-    newCylon(c);
+    hueCycle(c);
   } else if (DMX[0] == 255) {
     progress(DMX[1], DMX[2], DMX[3]);
     //  // else {error();}
