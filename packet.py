@@ -11,8 +11,8 @@ s = Serial(port, BAUD, )
 def send(values):
 	print(f'serial sending {values}')
 	p = cobs.encode(pack('>{}B'.format(len(values)), *values)) + b'\x00'
-	s.write(p)
-	return values
+	if s.write(p) is len(p):
+	    return values
 	# sleep(.3)
 	# if s.in_waiting:
 	# 	result = s.read(s.in_waiting)
