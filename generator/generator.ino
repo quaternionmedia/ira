@@ -184,7 +184,7 @@ void newRainbow(CRGB color) {
       //      thisHue = (thisHue + ARG) % 256;
       thisHue += ARG;
     }
-    LED[(i + pos) % LED_COUNT] = CHSV(thisHue, 255, ARG2);
+    LED[(i + pos) % LED_COUNT] = CHSV(thisHue, 255, ARG2+1);
   }
 //  for (int i = 0; i < pos; i++) {
 //    if ((i + pos) % EYESIZE == 0) {
@@ -249,7 +249,7 @@ void newCylon(CRGB color) {
       pixel = color;
     }
   }
-  LED.fadeToBlackBy(ARG);
+  LED.fadeToBlackBy(ARG+1);
   FastLED.show();
   hue++;
 }
@@ -365,11 +365,11 @@ void loop() {
   } else if (DMX[0] >= 153 && DMX[0] < 178) {
     glitter(c);
   } else if (DMX[0] >= 178 && DMX[0] < 204) {
-    glitterRandom(c);
-  } else if (DMX[0] >= 204 && DMX[0] < 229) {
     chaser(c);
-  } else if (DMX[0] >= 229 && DMX[0] < 255) {
+  } else if (DMX[0] >= 204 && DMX[0] < 229) {
     hueCycle(c);
+  } else if (DMX[0] >= 229 && DMX[0] < 255) {
+    progress(c);
   } else if (DMX[0] == 255) {
     progress(DMX[1], DMX[2], DMX[3]);
     //  // else {error();}
