@@ -6,8 +6,11 @@ from dash.exceptions import PreventUpdate
 import dash_daq as daq
 import packet
 from time import time
+from subprocess import run, PIPE
 
 sliderNames = ['speed', 'eyesize', 'arg1', 'arg2']
+parameterNames = ['program', 'r', 'g', 'b', *sliderNames]
+program = []
 fxNames = ['wash', 'cylon', 'marquee', 'wipe', 'waves', 'rainbow', 'glitter', 'chaser', 'hueCycle', 'progress']
 lastUpdate = time()
 
@@ -45,6 +48,9 @@ app.layout = html.Div([
     html.Div(style={'display': 'flex', 'padding-top': '60px'}, children=[
         html.H3('Value'),
         html.Div(id='iraValues'),]),
+    html.Button('upload', id='upload', type='button'),
+    html.P(id='uploadResults'),
+
 ], style=style, className='container', )
 
 
@@ -54,15 +60,25 @@ app.layout = html.Div([
             *[Input(i, 'value') for i in sliderNames]],
             )
 def updateRange(*v):
-    if time() - lastUpdate < .2:
+    global lastUpdate
+    if time() - lastUpdate < .05:
         raise PreventUpdate
         return
     c = v[1]['rgb']
     p = [v[0], c['r'], c['g'], c['b'], *v[2:]]
     print('updating', v, p)
+    lastUpdate = time()
     return packet.send(p)
 
-
+@app.callback(Output('uploadResults', 'children'), [Input('upload', 'n_clicks')])
+def upload(n):
+    if n:
+        arduinoType = 'nano:cpu=atmega328old'
+        compiled = f'arduino-cli compile -b arduino:avr:{arduinoType} generator'
+        results = run(compiled.split(' '), capture_output=True).stdout
+        uploaded = f'arduino-cli upload -b arduino:avr:{arduinoType} -p /dev/tty.usbserial-1430 -v generator'
+        results += run(uploaded.split(' '), capture_output=True).stdout
+        return str(results)
 
 if __name__ == '__main__':
     app.run_server(host='0.0.0.0', port=8000, debug=True)
