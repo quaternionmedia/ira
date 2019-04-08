@@ -30,7 +30,9 @@ uint8_t ARG = 0;
 uint8_t ARG2 = 0;
 uint8_t EYESIZE = 10;
 int pos = 0;
+fract8 posFract = 0;
 int lpos = pos;
+fract8 lposFract = posFract;
 int delta = 0;
 volatile uint8_t hue = 0;
 unsigned long lastUpdate = 0;
@@ -52,24 +54,13 @@ void fadeall() {
 
 void positionIncrement() {
   lpos = pos;
-  if (SPEED < 16) {
-    delta = SPEED - 17;
-  } else if (SPEED >= 16 && SPEED < 128) {
-    delta = -1;
-    //    delay((SPEED - 64) * 2 );
+  lposFract = posFract;
 
-    wait((SPEED - 16) * 2);
-  } else if (SPEED == 128) {
-    delta = 0;
-    //freeze
-  } else if (SPEED > 128 && SPEED < 240) {
-    delta = 1;
-    wait((240 - SPEED) * 2);
-  } else if (SPEED >= 240) {
-    delta = SPEED - 240;
-  }
-  pos = (pos + delta + LED_COUNT) % LED_COUNT;
-
+    pos = (pos + (SPEED >> 4)) % LED_COUNT;
+    posFract = (posFract + (SPEED << 4)) % 255;
+    if (posFract < (SPEED << 4)) {
+      pos = (pos + 1) % LED_COUNT;
+    }
 }
 
 void wait(int t) {
@@ -249,6 +240,7 @@ void newCylon(CRGB color) {
       pixel = color;
     }
   }
+  LED[(pos + EYESIZE) % LED_COUNT].nscale8_video(posFract);
   LED.fadeToBlackBy(ARG+1);
   FastLED.show();
   hue++;
