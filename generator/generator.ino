@@ -55,11 +55,15 @@ void fadeall() {
 void positionIncrement() {
   lpos = pos;
   lposFract = posFract;
+    pos = (pos + (SPEED >> 4) - 8 + LED_COUNT) % LED_COUNT;
+    posFract += SPEED - 128;
+    if ((SPEED > 127) && (posFract < lposFract)) {
 
-    pos = (pos + (SPEED >> 4)) % LED_COUNT;
-    posFract = (posFract + (SPEED << 4)) % 255;
-    if (posFract < (SPEED << 4)) {
       pos = (pos + 1) % LED_COUNT;
+    }
+    if ((SPEED < 127) && (posFract > lposFract)) {
+
+      pos = (pos - 1) % LED_COUNT;
     }
 }
 
