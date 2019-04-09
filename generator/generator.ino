@@ -56,16 +56,19 @@ void positionIncrement() {
   lpos = pos;
   lposFract = posFract;
   delta = SPEED - 128;
-    pos = (pos + (delta >> 6) + LED_COUNT) % LED_COUNT;
+  if (delta > 0) {
     posFract += delta << 2;
-    if ((SPEED > 127) && (posFract < lposFract)) {
-
+    pos = (pos + (delta >> 6) + LED_COUNT) % LED_COUNT;
+    if (posFract < lposFract) {
       pos = (pos + 1) % LED_COUNT;
     }
-    if ((SPEED <= 127) && (posFract > lposFract)) {
-
+  } else {
+    posFract -= -delta << 2;
+    pos = (pos - (-delta >> 6) + LED_COUNT) % LED_COUNT;
+    if (posFract > lposFract) {
       pos = (pos - 1 + LED_COUNT) % LED_COUNT;
     }
+  }
 }
 
 void wait(int t) {
@@ -240,15 +243,17 @@ void newCylon(CRGB color) {
     for (CRGB & pixel : LED(0, (pos + EYESIZE) % LED_COUNT)) {
       pixel = color;
     }
-    LED[(pos) % LED_COUNT].nscale8_video(posFract);
   } else {
     for (CRGB & pixel : LED(pos, (pos + EYESIZE) % LED_COUNT)) {
       pixel = color;
     }
-    LED[(pos + EYESIZE) % LED_COUNT].nscale8_video(posFract);
   }
-  LED.fadeToBlackBy(ARG+1);
+  LED[(pos + EYESIZE) % LED_COUNT] %= posFract;
+  if (delta < 1) {
+    LED[pos] %= 255 - posFract;
+  }
   FastLED.show();
+  LED.fadeToBlackBy(ARG+1);
   hue++;
 }
 
@@ -367,7 +372,7 @@ void loop() {
   } else if (DMX[0] >= 204 && DMX[0] < 229) {
     hueCycle(c);
   } else if (DMX[0] >= 229 && DMX[0] < 255) {
-    progress(c);
+    hueCycle(c);
   } else if (DMX[0] == 255) {
     progress(DMX[1], DMX[2], DMX[3]);
     //  // else {error();}
