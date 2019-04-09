@@ -55,15 +55,16 @@ void fadeall() {
 void positionIncrement() {
   lpos = pos;
   lposFract = posFract;
-    pos = (pos + (SPEED >> 4) - 8 + LED_COUNT) % LED_COUNT;
-    posFract += SPEED - 128;
+  delta = SPEED - 128;
+    pos = (pos + (delta >> 6) + LED_COUNT) % LED_COUNT;
+    posFract += delta << 2;
     if ((SPEED > 127) && (posFract < lposFract)) {
 
       pos = (pos + 1) % LED_COUNT;
     }
-    if ((SPEED < 127) && (posFract > lposFract)) {
+    if ((SPEED <= 127) && (posFract > lposFract)) {
 
-      pos = (pos - 1) % LED_COUNT;
+      pos = (pos - 1 + LED_COUNT) % LED_COUNT;
     }
 }
 
@@ -239,12 +240,13 @@ void newCylon(CRGB color) {
     for (CRGB & pixel : LED(0, (pos + EYESIZE) % LED_COUNT)) {
       pixel = color;
     }
+    LED[(pos) % LED_COUNT].nscale8_video(posFract);
   } else {
     for (CRGB & pixel : LED(pos, (pos + EYESIZE) % LED_COUNT)) {
       pixel = color;
     }
+    LED[(pos + EYESIZE) % LED_COUNT].nscale8_video(posFract);
   }
-  LED[(pos + EYESIZE) % LED_COUNT].nscale8_video(posFract);
   LED.fadeToBlackBy(ARG+1);
   FastLED.show();
   hue++;
