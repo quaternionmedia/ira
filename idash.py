@@ -2,13 +2,14 @@ from dash import Dash
 from dash.dependencies import Input, Output, State
 import dash_core_components as dcc
 import dash_html_components as html
+import dash_table
 from dash.exceptions import PreventUpdate
 import dash_daq as daq
 import packet
 from time import time
 from subprocess import run, PIPE
 
-sliderNames = ['speed', 'eyesize', 'arg1', 'arg2']
+sliderNames = ['speed', 'hue speed', 'eyesize', 'arg']
 parameterNames = ['program', 'r', 'g', 'b', *sliderNames]
 program = []
 fxNames = ['wash', 'cylon', 'marquee', 'wipe', 'waves', 'rainbow', 'glitter', 'chaser', 'hueCycle', 'progress']
@@ -48,8 +49,13 @@ app.layout = html.Div([
     html.Div(style={'display': 'flex', 'padding-top': '60px'}, children=[
         html.H3('Value'),
         html.Div(id='iraValues'),]),
-    html.Button('upload', id='upload', type='button'),
-    html.P(id='uploadResults'),
+    dash_table.DataTable(id='datatable',
+                        columns=[{'name': i, 'id': i} for i in parameterNames],
+                        ),
+    html.Br(),
+    html.Div(id='uploader', children=[
+        html.Button('upload', id='upload', type='button'),
+        html.Pre(id='uploadResults'),]),
 
 ], style=style, className='container', )
 
@@ -78,7 +84,7 @@ def upload(n):
         results = run(compiled.split(' '), capture_output=True).stdout
         uploaded = f'arduino-cli upload -b arduino:avr:{arduinoType} -p /dev/tty.usbserial-1430 -v generator'
         results += run(uploaded.split(' '), capture_output=True).stdout
-        return str(results)
+        return results.decode()
 
 if __name__ == '__main__':
     app.run_server(host='0.0.0.0', port=8000, debug=True)
