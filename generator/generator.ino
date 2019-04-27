@@ -133,14 +133,21 @@ void marquee() {
   // if (color == black) {
   //   color = CHSV(hue, 255, ARG + 1);
   // }
+  int p = 0;
   unsigned long  t = millis() - lastUpdate;
   if ((t >= (255 - SPEED)) || (t - lastUpdate <= 0)) {
     for (int i = 0; i < LED_COUNT; i++) {
       if (i % (EYESIZE + 2) == 0) {
-        LED[(i + pos + LED_COUNT) % LED_COUNT] = colorHSV;
+        p = (i + pos + LED_COUNT) % LED_COUNT;
+        LED[p] = colorHSV;
+        if (delta < 0) {
+          LED[p].nscale8(255 - posFract);
+        } else {
+          LED[p].nscale8(posFract);
+        }
       }
       // else {
-        // LED[(i + pos + LED_COUNT) % LED_COUNT] = black;
+      // LED[(i + pos + LED_COUNT) % LED_COUNT] = black;
       // }
     }
     FastLED.show();
