@@ -61,13 +61,13 @@ void positionIncrement() {
   lposFract = posFract;
   delta = SPEED - 128;
   if (delta > 0) {
-    posFract += delta << 2;
+    posFract += delta;
     pos = (pos + (delta >> 6) + LED_COUNT) % LED_COUNT;
     if (posFract < lposFract) {
       pos = (pos + 1) % LED_COUNT;
     }
   } else {
-    posFract -= -delta << 2;
+    posFract -= -delta;
     pos = (pos - (-delta >> 6) + LED_COUNT) % LED_COUNT;
     if (posFract > lposFract) {
       pos = (pos - 1 + LED_COUNT) % LED_COUNT;
@@ -108,14 +108,14 @@ void newCylon() {
 
   if ((pos + EYESIZE) >= LED_COUNT) {
     for (CRGB & pixel : LED(pos, LED_COUNT)) {
-      pixel = colorHSV;
+      pixel = HUE_SPEED > 0 ? colorHSV : color;
     }
     for (CRGB & pixel : LED(0, (pos + EYESIZE) % LED_COUNT)) {
-      pixel = colorHSV;
+      pixel = HUE_SPEED > 0 ? colorHSV : color;
     }
   } else {
     for (CRGB & pixel : LED(pos, (pos + EYESIZE) % LED_COUNT)) {
-      pixel = colorHSV;
+      pixel = HUE_SPEED > 0 ? colorHSV : color;
     }
   }
 
@@ -139,15 +139,17 @@ void marquee() {
     for (int i = 0; i < LED_COUNT; i++) {
       if (i % (EYESIZE + 2) == 0) {
         p = (i + pos + LED_COUNT) % LED_COUNT;
-        LED[p] = colorHSV;
-        if (delta < 0) {
-          LED[p].nscale8(255 - posFract);
-        } else {
-          LED[p].nscale8(posFract);
+        LED[p] = HUE_SPEED > 0 ? colorHSV : color;
+        if (ARG > 0) {
+          if (delta < 0) {
+            LED[p].nscale8(255 - posFract);
+          } else {
+            LED[p].nscale8(posFract);
+          }
         }
       }
       // else {
-      // LED[(i + pos + LED_COUNT) % LED_COUNT] = black;
+      // ARG == 0 ? LED[p] = black;
       // }
     }
     FastLED.show();
@@ -168,6 +170,7 @@ void wipe() {
     );
   }
   FastLED.show();
+  fadeall();
 }
 
 void waves() {
@@ -207,7 +210,7 @@ void newRainbow() {
       //      thisHue = (thisHue + ARG) % 256;
       thisHue += ARG;
     }
-    LED[(i + pos) % LED_COUNT] = CHSV(thisHue, 255, HUE_SPEED+1);
+    LED[(i + pos) % LED_COUNT] = CHSV(thisHue, 255, max(ARG, 1));
   }
   //  for (int i = 0; i < pos; i++) {
   //    if ((i + pos) % EYESIZE == 0) {
@@ -229,10 +232,10 @@ void glitter() {
   if ( random8() <= SPEED) {
     if (color == black) {
       //when input == black, use hue cycle
-      LED[ random16(LED_COUNT) ] += CHSV(hue, 255, random8());
+      LED[ random16(LED_COUNT) ] += CHSV(hue, random8(), random8());
     } else {
       // else use color
-      LED[ random16(LED_COUNT) ] += color;
+      LED[ random16(LED_COUNT) ] += HUE_SPEED > 0 ? colorHSV : color;
     }
   }
   FastLED.show();
@@ -260,7 +263,8 @@ void hueCycle() {
   //  for (CRGB & pixel : LED(0, LED_COUNT)) {
   //    pixel = CHSV(hue, ARG, HUE_SPEED);
   //  }
-  fill_rainbow(LED, ARG, HUE_SPEED);
+  fill_rainbow(LED, LED_COUNT, hue);
+  fadeall();
   FastLED.show();
 
 }

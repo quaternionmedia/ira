@@ -9,7 +9,7 @@ import packet
 from time import time
 from subprocess import run, PIPE
 
-sliderNames = ['speed', 'hue speed', 'eyesize', 'arg']
+sliderNames = ['speed', 'hue speed', 'eyesize', 'tail']
 parameterNames = ['program', 'r', 'g', 'b', *sliderNames]
 program = []
 fxNames = ['wash', 'cylon', 'marquee', 'wipe', 'waves', 'rainbow', 'glitter', 'chaser', 'hueCycle', 'progress']
