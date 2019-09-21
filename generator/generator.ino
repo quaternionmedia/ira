@@ -1,6 +1,7 @@
 #define DEBUG false
 #include <EEPROM.h>
 #include <ESP8266WiFi.h>
+#include "Secrets.h"
 
 #include <Wire.h>
 #define STATUS_LED 13
@@ -328,11 +329,11 @@ void setup() {
   //  Wire.setClock(400000);
   Wire.begin(I2C_ADDRESS);
   Wire.onReceive(newData);
-  //  Serial.begin(9600);
-  //  while (!Serial) {
-  //  }
-  pSerial.begin(PSERIAL_BAUD);
-  pSerial.setPacketHandler(&onSerial);
+    Serial.begin(9600);
+    while (!Serial) {
+    }
+//  pSerial.begin(PSERIAL_BAUD);
+//  pSerial.setPacketHandler(&onSerial);
 
   //  LED.setOutput(LED_PIN);
   LEDS.addLeds<WS2812, LED_PIN, RGB>(LED, LED_COUNT);
@@ -343,6 +344,16 @@ void setup() {
   for (int i = 0; i < DMX_CHANNELS; i++) {
     EEPROM.get(i, DMX[i]);
   }
+  WiFi.begin(WiFiName, WiFiPassword);
+  while (WiFi.status() != WL_CONNECTED)
+  {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println();
+
+  Serial.print("Connected, IP address: ");
+  Serial.println(WiFi.localIP());
 }
 
 void loop() {
