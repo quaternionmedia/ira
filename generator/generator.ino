@@ -1,12 +1,13 @@
 #define DEBUG false
 #include <EEPROM.h>
+#include <ESP8266WiFi.h>
 
 #include <Wire.h>
 #define STATUS_LED 13
 #define I2C_ADDRESS 42
 
 #define DMX_CHANNELS 8
-volatile uint8_t DMX[DMX_CHANNELS];
+uint8_t DMX[DMX_CHANNELS];
 //uint8_t DMX[DMX_CHANNELS];
 
 //#define USE_HSV
@@ -15,7 +16,7 @@ volatile uint8_t DMX[DMX_CHANNELS];
 #include <FastLED.h>
 
 #define LED_COUNT 300
-#define LED_PIN 6
+#define LED_PIN 16
 
 //WS2812 LED(LED_COUNT);
 //CRGB *LED[LED_COUNT];
@@ -201,7 +202,12 @@ void rainbow() {
   FastLED.show();
   //  fadeall();
 }
-
+int max(int a, int b) {
+  return a > b ? a : b;
+}
+int min(int a, int b) {
+  return a > b ? a : b;
+}
 void newRainbow() {
   uint8_t thisHue = hue;
   //  int i = 0;
@@ -306,8 +312,8 @@ void newData(int n) {
   //  }
 }
 
-void onSerial(const uint8_t* buffer, size_t size) {
-  memcpy(DMX, buffer, min(size, DMX_CHANNELS));
+void onSerial(const uint8_t *buffer, size_t size) {
+  memcpy(DMX, &buffer, min(size, DMX_CHANNELS));
 
   //  analogWrite(STATUS_LED, buffer[0]);
   if (DEBUG) {
