@@ -2,6 +2,9 @@
 #include <EEPROM.h>
 #include <ESP8266WiFi.h>
 #include "Secrets.h"
+// #include "API.h"
+#include <AsyncJson.h>
+#include <ArduinoJson.h>
 
 #include <Wire.h>
 #define STATUS_LED 13
@@ -323,6 +326,11 @@ void onSerial(const uint8_t *buffer, size_t size) {
   NEWS = true;
 
 }
+AsyncWebServer server(80);
+AsyncEventSource status("/status");
+DynamicJsonDocument doc(200);
+JsonArray jdmx = doc.createNestedArray("dmx");
+
 
 void setup() {
   pinMode(13, OUTPUT);
@@ -354,6 +362,8 @@ void setup() {
 
   Serial.print("Connected, IP address: ");
   Serial.println(WiFi.localIP());
+
+
 }
 
 void loop() {
@@ -368,6 +378,7 @@ void loop() {
   if (NEWS) {
     for (int i = 0; i < DMX_CHANNELS; i++) {
       EEPROM.put(i, DMX[i]);
+      jdmx[i] = DMX[i];
     }
   }
   NEWS = false;
