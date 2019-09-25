@@ -3,6 +3,8 @@
 #include <ESP8266WiFi.h>
 #include "Secrets.h"
 // #include "API.h"
+#include "ESPAsyncTCP.h"
+#include "ESPAsyncWebServer.h"
 #include <AsyncJson.h>
 #include <ArduinoJson.h>
 
@@ -316,6 +318,10 @@ void newData(int n) {
   //  }
 }
 
+AsyncWebServer server(80);
+AsyncEventSource status("/status");
+DynamicJsonDocument doc(200);
+
 void onSerial(const uint8_t *buffer, size_t size) {
   memcpy(DMX, &buffer, min(size, DMX_CHANNELS));
 
@@ -326,22 +332,25 @@ void onSerial(const uint8_t *buffer, size_t size) {
   NEWS = true;
 
 }
-AsyncWebServer server(80);
-AsyncEventSource status("/status");
-DynamicJsonDocument doc(200);
-JsonArray jdmx = doc.createNestedArray("dmx");
+// JsonArray jdmx = doc.createNestedArray("dmx");
 
+void getStatus(AsyncWebServerRequest *request) {
+  // , uint8_t *data, size_t len, size_t index, size_t total){
+  AsyncResponseStream *response = request->beginResponseStream("application/json");
+  serializeJson(doc, *response);
+  request->send(response);
+}
 
 void setup() {
   pinMode(13, OUTPUT);
   //  Wire.setClock(400000);
   Wire.begin(I2C_ADDRESS);
   Wire.onReceive(newData);
-    Serial.begin(9600);
-    while (!Serial) {
-    }
-//  pSerial.begin(PSERIAL_BAUD);
-//  pSerial.setPacketHandler(&onSerial);
+  // Serial.begin(9600);
+  // while (!Serial) {
+  // }
+ pSerial.begin(PSERIAL_BAUD);
+ pSerial.setPacketHandler(&onSerial);
 
   //  LED.setOutput(LED_PIN);
   LEDS.addLeds<WS2812, LED_PIN, RGB>(LED, LED_COUNT);
@@ -351,18 +360,24 @@ void setup() {
   //  DMX[3] = 255;
   for (int i = 0; i < DMX_CHANNELS; i++) {
     EEPROM.get(i, DMX[i]);
+    doc[String(i)] = DMX[i];
   }
   WiFi.begin(WiFiName, WiFiPassword);
   while (WiFi.status() != WL_CONNECTED)
   {
-    delay(500);
-    Serial.print(".");
+    analogWrite(STATUS_LED, 0);
+    delay(200);
+    analogWrite(STATUS_LED, 255);
+    delay(200);
+    // Serial.print(".");
   }
-  Serial.println();
+  // Serial.println();
 
-  Serial.print("Connected, IP address: ");
-  Serial.println(WiFi.localIP());
+  // Serial.print("Connected, IP address: ");
+  // Serial.println(WiFi.localIP());
 
+  server.on("/", HTTP_GET, getStatus);
+  server.begin();
 
 }
 
@@ -378,7 +393,7 @@ void loop() {
   if (NEWS) {
     for (int i = 0; i < DMX_CHANNELS; i++) {
       EEPROM.put(i, DMX[i]);
-      jdmx[i] = DMX[i];
+      doc[String(i)] = (uint8_t)DMX[i];
     }
   }
   NEWS = false;
