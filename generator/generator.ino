@@ -1,4 +1,4 @@
-#define DEBUG false
+#define DEBUG true
 #include <EEPROM.h>
 #include <ESP8266WiFi.h>
 #include "Secrets.h"
@@ -54,7 +54,7 @@ volatile bool NEWS = false;
 
 #include <PacketSerial.h>
 PacketSerial pSerial;
-#define PSERIAL_BAUD 1200
+#define PSERIAL_BAUD 9600
 
 void fadeall() {
   // for (CRGB & pixel : LED(0, LED_COUNT)) {
@@ -320,7 +320,6 @@ void newData(int n) {
 
 AsyncWebServer server(80);
 AsyncEventSource status("/status");
-DynamicJsonDocument doc(200);
 
 void onSerial(const uint8_t *buffer, size_t size) {
   memcpy(DMX, &buffer, min(size, DMX_CHANNELS));
@@ -336,6 +335,11 @@ void onSerial(const uint8_t *buffer, size_t size) {
 
 void getStatus(AsyncWebServerRequest *request) {
   // , uint8_t *data, size_t len, size_t index, size_t total){
+  DynamicJsonDocument doc(200);
+  // JsonObject& jdmx = doc.to<JsonObject>();
+  for (uint8_t i=0; i<DMX_CHANNELS; i++) {
+    doc[String(i)] = (int) DMX[i];
+  }
   AsyncResponseStream *response = request->beginResponseStream("application/json");
   serializeJson(doc, *response);
   request->send(response);
@@ -346,7 +350,8 @@ void setup() {
   //  Wire.setClock(400000);
   Wire.begin(I2C_ADDRESS);
   Wire.onReceive(newData);
-  // Serial.begin(9600);
+
+  // Serial.begin(PSERIAL_BAUD);
   // while (!Serial) {
   // }
  pSerial.begin(PSERIAL_BAUD);
@@ -360,7 +365,7 @@ void setup() {
   //  DMX[3] = 255;
   for (int i = 0; i < DMX_CHANNELS; i++) {
     EEPROM.get(i, DMX[i]);
-    doc[String(i)] = DMX[i];
+    // jdmx[String(i)] = String(DMX[i]);
   }
   WiFi.begin(WiFiName, WiFiPassword);
   while (WiFi.status() != WL_CONNECTED)
@@ -393,7 +398,7 @@ void loop() {
   if (NEWS) {
     for (int i = 0; i < DMX_CHANNELS; i++) {
       EEPROM.put(i, DMX[i]);
-      doc[String(i)] = (uint8_t)DMX[i];
+      // jdmx[String(i)] = String(DMX[i]);
     }
   }
   NEWS = false;
