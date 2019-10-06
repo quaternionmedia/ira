@@ -1,25 +1,14 @@
 #define DEBUG true
 #include <EEPROM.h>
-#include <ESP8266WiFi.h>
-#include "Secrets.h"
-// #include "API.h"
-#include "ESPAsyncTCP.h"
-#include "ESPAsyncWebServer.h"
-#include <AsyncJson.h>
-#include <ArduinoJson.h>
-
 #include <Wire.h>
-#define STATUS_LED 13
-#define I2C_ADDRESS 42
 
-#define DMX_CHANNELS 8
-uint8_t DMX[DMX_CHANNELS];
-//uint8_t DMX[DMX_CHANNELS];
-
-//#define USE_HSV
-//#include <WS2812.h>
+#include "generator.h"
+#include "API.h"
 
 #include <FastLED.h>
+
+#define STATUS_LED 13
+#define I2C_ADDRESS 42
 
 #define LED_COUNT 300
 #define LED_PIN 16
@@ -52,9 +41,9 @@ volatile bool NEWS = false;
 
 //#include <cos_fix.h>
 
-#include <PacketSerial.h>
-PacketSerial pSerial;
-#define PSERIAL_BAUD 9600
+// #include <PacketSerial.h>
+// PacketSerial pSerial;
+// #define PSERIAL_BAUD 9600
 
 void fadeall() {
   // for (CRGB & pixel : LED(0, LED_COUNT)) {
@@ -100,7 +89,7 @@ void wait(int t) {
   unsigned long endTime = millis() + t;
   while (millis() <= endTime) {
     //    delay(0);
-    pSerial.update();
+    // pSerial.update();
 
   }
 }
@@ -318,32 +307,17 @@ void newData(int n) {
   //  }
 }
 
-AsyncWebServer server(80);
-AsyncEventSource status("/status");
-
 void onSerial(const uint8_t *buffer, size_t size) {
   memcpy(DMX, &buffer, min(size, DMX_CHANNELS));
 
   //  analogWrite(STATUS_LED, buffer[0]);
   if (DEBUG) {
-    pSerial.send(buffer, size);
+    // pSerial.send(buffer, size);
   }
   NEWS = true;
 
 }
 // JsonArray jdmx = doc.createNestedArray("dmx");
-
-void getStatus(AsyncWebServerRequest *request) {
-  // , uint8_t *data, size_t len, size_t index, size_t total){
-  DynamicJsonDocument doc(200);
-  // JsonObject& jdmx = doc.to<JsonObject>();
-  for (uint8_t i=0; i<DMX_CHANNELS; i++) {
-    doc[String(i)] = (int) DMX[i];
-  }
-  AsyncResponseStream *response = request->beginResponseStream("application/json");
-  serializeJson(doc, *response);
-  request->send(response);
-}
 
 void setup() {
   pinMode(13, OUTPUT);
@@ -354,8 +328,8 @@ void setup() {
   // Serial.begin(PSERIAL_BAUD);
   // while (!Serial) {
   // }
- pSerial.begin(PSERIAL_BAUD);
- pSerial.setPacketHandler(&onSerial);
+ // pSerial.begin(PSERIAL_BAUD);
+ // pSerial.setPacketHandler(&onSerial);
 
   //  LED.setOutput(LED_PIN);
   LEDS.addLeds<WS2812, LED_PIN, RGB>(LED, LED_COUNT);
@@ -367,27 +341,27 @@ void setup() {
     EEPROM.get(i, DMX[i]);
     // jdmx[String(i)] = String(DMX[i]);
   }
-  WiFi.begin(WiFiName, WiFiPassword);
-  while (WiFi.status() != WL_CONNECTED)
-  {
-    analogWrite(STATUS_LED, 0);
-    delay(200);
-    analogWrite(STATUS_LED, 255);
-    delay(200);
-    // Serial.print(".");
-  }
+  // WiFi.begin(WiFiName, WiFiPassword);
+  // while (WiFi.status() != WL_CONNECTED)
+  // {
+  //   analogWrite(STATUS_LED, 0);
+  //   delay(200);
+  //   analogWrite(STATUS_LED, 255);
+  //   delay(200);
+  //   // Serial.print(".");
+  // }
   // Serial.println();
 
   // Serial.print("Connected, IP address: ");
   // Serial.println(WiFi.localIP());
 
-  server.on("/", HTTP_GET, getStatus);
-  server.begin();
-
+  // server.on("/", HTTP_GET, getStatus);
+  // server.begin();
+  initServer();
 }
 
 void loop() {
-  pSerial.update();
+  // pSerial.update();
   analogWrite(STATUS_LED, DMX[0]);
   color = CRGB( DMX[2], DMX[1], DMX[3] );
   SPEED = DMX[4];
