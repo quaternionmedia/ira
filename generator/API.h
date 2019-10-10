@@ -1,6 +1,8 @@
 #include "generator.h"
 
-#include <ESP8266WiFi.h>
+// #include <ESP8266WiFi.h>
+#include <WiFi.h>
+#include "AsyncTCP.h"
 #include "ESPAsyncWebServer.h"
 #include "AsyncJson.h"
 #include "ArduinoJson.h"
@@ -13,16 +15,16 @@ AsyncWebServer server(80);
 // uint8_t dmx[8];
 
 void initServer() {
-  Serial.begin(9600);
+  // Serial.begin(9600);
   WiFi.begin(WiFiName, WiFiPassword);
   while (WiFi.status() != WL_CONNECTED) {
-    Serial.print(".");
+//    Serial.print(".");
     delay(200);
   }
-  Serial.println();
-
-  Serial.print("Connected, IP address: ");
-  Serial.println(WiFi.localIP());
+  // Serial.println();
+  //
+  // Serial.print("Connected, IP address: ");
+  // Serial.println(WiFi.localIP());
 
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
     AsyncResponseStream *response = request->beginResponseStream("application/json");

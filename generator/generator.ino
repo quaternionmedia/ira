@@ -1,17 +1,19 @@
-#define DEBUG true
+#define DEBUG false
 #include <EEPROM.h>
-#include <Wire.h>
+// #include <Wire.h>
 
 #include "generator.h"
 #include "API.h"
 
+// #define FASTLED_ESP8266_RAW_PIN_ORDER
+// #define FASTLED_ESP8266_DMA
 #include <FastLED.h>
 
-#define STATUS_LED 13
+#define STATUS_LED 2
 #define I2C_ADDRESS 42
 
-#define LED_COUNT 300
-#define LED_PIN 16
+#define LED_COUNT 65
+#define LED_PIN 5
 
 //WS2812 LED(LED_COUNT);
 //CRGB *LED[LED_COUNT];
@@ -41,9 +43,9 @@ volatile bool NEWS = false;
 
 //#include <cos_fix.h>
 
-// #include <PacketSerial.h>
-// PacketSerial pSerial;
-// #define PSERIAL_BAUD 9600
+ #include <PacketSerial.h>
+ PacketSerial pSerial;
+#define PSERIAL_BAUD 115200
 
 void fadeall() {
   // for (CRGB & pixel : LED(0, LED_COUNT)) {
@@ -300,7 +302,7 @@ void progress(uint8_t p, uint8_t b, uint8_t t) {
 
 void newData(int n) {
   for (int i = 0; i < n; i++) {
-    DMX[i] = Wire.read();
+    // DMX[i] = Wire.read();
   }
   //  if (DEBUG) {
   //    Serial.write(DMX, DMX_CHANNELS);
@@ -320,16 +322,16 @@ void onSerial(const uint8_t *buffer, size_t size) {
 // JsonArray jdmx = doc.createNestedArray("dmx");
 
 void setup() {
-  pinMode(13, OUTPUT);
+  pinMode(LED_PIN, OUTPUT);
   //  Wire.setClock(400000);
-  Wire.begin(I2C_ADDRESS);
-  Wire.onReceive(newData);
+  // Wire.begin(I2C_ADDRESS);
+  // Wire.onReceive(newData);
 
-  // Serial.begin(PSERIAL_BAUD);
-  // while (!Serial) {
-  // }
- // pSerial.begin(PSERIAL_BAUD);
- // pSerial.setPacketHandler(&onSerial);
+//  Serial.begin(PSERIAL_BAUD);
+//  while (!Serial) {
+//  }
+  pSerial.begin(PSERIAL_BAUD);
+  pSerial.setPacketHandler(&onSerial);
 
   //  LED.setOutput(LED_PIN);
   LEDS.addLeds<WS2812, LED_PIN, RGB>(LED, LED_COUNT);
@@ -341,19 +343,19 @@ void setup() {
     EEPROM.get(i, DMX[i]);
     // jdmx[String(i)] = String(DMX[i]);
   }
-  // WiFi.begin(WiFiName, WiFiPassword);
-  // while (WiFi.status() != WL_CONNECTED)
-  // {
-  //   analogWrite(STATUS_LED, 0);
-  //   delay(200);
-  //   analogWrite(STATUS_LED, 255);
-  //   delay(200);
-  //   // Serial.print(".");
-  // }
-  // Serial.println();
+  WiFi.begin(WiFiName, WiFiPassword);
+  while (WiFi.status() != WL_CONNECTED)
+  {
+    // analogWrite(STATUS_LED, 0);
+    // delay(200);
+    // analogWrite(STATUS_LED, 255);
+    delay(200);
+//    Serial.print(".");
+  }
+//  Serial.println();
 
-  // Serial.print("Connected, IP address: ");
-  // Serial.println(WiFi.localIP());
+//  Serial.print("Connected, IP address: ");
+//  Serial.println(WiFi.localIP());
 
   // server.on("/", HTTP_GET, getStatus);
   // server.begin();
@@ -361,8 +363,8 @@ void setup() {
 }
 
 void loop() {
-  // pSerial.update();
-  analogWrite(STATUS_LED, DMX[0]);
+   pSerial.update();
+  // analogWrite(STATUS_LED, DMX[0]);
   color = CRGB( DMX[2], DMX[1], DMX[3] );
   SPEED = DMX[4];
   HUE_SPEED = DMX[5];
