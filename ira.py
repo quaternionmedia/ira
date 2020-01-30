@@ -23,11 +23,11 @@ channels = ['program', 'red', 'green', 'blue', 'speed', 'eyesize', 'arg1', 'arg2
 @app.get('/ira')
 async def ira(program: List[int] = Query(None)):
     print('ira got ', program)
-    resp = post('http://192.168.1.66/', data=dumps({'dmx':program}), headers={'Content-Type': 'application/json'})
-    # return packet.send(program)
-    if resp.status_code == 200:
-        return program
-    else: return resp.status_code
+    # resp = post('http://192.168.1.66/', data=dumps({'dmx':program}), headers={'Content-Type': 'application/json'})
+    # if resp.status_code == 200:
+    #     return program
+    # else: return resp.status_code
+    return packet.send(*program)
 
 @app.get('/upload')
 async def upload():
