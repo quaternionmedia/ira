@@ -2,3 +2,6 @@ pyserial
 cobs
 fastapi
 uvicorn
+requests
+jinja2
+python-osc
