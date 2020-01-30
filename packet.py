@@ -3,6 +3,7 @@ from cobs import cobs
 from struct import pack
 from serialports import serial_ports
 port = serial_ports()[0]
+# port = '/dev/ttyUSB0'
 BAUD = 1200
 from time import sleep
 
