@@ -5,7 +5,7 @@
 
 from sys import argv
 from requests import get
-addr = ['192.168.10.102:8000', '192.168.10.107:8000']
+addr = ['192.168.10.101:8000', '192.168.10.102:8000']
 def iras(*values):
     for a in addr:
         query = 'http://'

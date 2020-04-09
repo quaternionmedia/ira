@@ -1,0 +1,5 @@
+#!/sbin/openrc-run
+
+command="gunicorn"
+command_args="--chdir /home/harpo/ira/ --bind 0.0.0.0:8000 idash:app.server"
+command_args_background="--daemon"

@@ -3,7 +3,7 @@
 // #include <Wire.h>
 
 #include "generator.h"
-#include "API.h"
+//#include "API.h"
 
 // #define FASTLED_ESP8266_RAW_PIN_ORDER
 // #define FASTLED_ESP8266_DMA
@@ -12,8 +12,8 @@
 #define STATUS_LED 2
 #define I2C_ADDRESS 42
 
-#define LED_COUNT 65
-#define LED_PIN 5
+#define LED_COUNT 100
+#define LED_PIN 6
 
 //WS2812 LED(LED_COUNT);
 //CRGB *LED[LED_COUNT];
@@ -45,7 +45,7 @@ volatile bool NEWS = false;
 
  #include <PacketSerial.h>
  PacketSerial pSerial;
-#define PSERIAL_BAUD 115200
+#define PSERIAL_BAUD 1200
 
 void fadeall() {
   // for (CRGB & pixel : LED(0, LED_COUNT)) {
@@ -199,12 +199,12 @@ void rainbow() {
   FastLED.show();
   //  fadeall();
 }
-int max(int a, int b) {
-  return a > b ? a : b;
-}
-int min(int a, int b) {
-  return a > b ? a : b;
-}
+//int max(int a, int b) {
+//  return a > b ? a : b;
+//}
+//int min(int a, int b) {
+//  return a > b ? a : b;
+//}
 void newRainbow() {
   uint8_t thisHue = hue;
   //  int i = 0;
@@ -343,15 +343,15 @@ void setup() {
     EEPROM.get(i, DMX[i]);
     // jdmx[String(i)] = String(DMX[i]);
   }
-  WiFi.begin(WiFiName, WiFiPassword);
-  while (WiFi.status() != WL_CONNECTED)
-  {
-    // analogWrite(STATUS_LED, 0);
-    // delay(200);
-    // analogWrite(STATUS_LED, 255);
-    delay(200);
-//    Serial.print(".");
-  }
+//  WiFi.begin(WiFiName, WiFiPassword);
+//  while (WiFi.status() != WL_CONNECTED)
+//  {
+//    // analogWrite(STATUS_LED, 0);
+//    // delay(200);
+//    // analogWrite(STATUS_LED, 255);
+//    delay(200);
+////    Serial.print(".");
+//  }
 //  Serial.println();
 
 //  Serial.print("Connected, IP address: ");
@@ -359,7 +359,7 @@ void setup() {
 
   // server.on("/", HTTP_GET, getStatus);
   // server.begin();
-  initServer();
+//  initServer();
 }
 
 void loop() {

@@ -15,18 +15,18 @@ def send(*values):
     print(f'sending: {p}')
     if s.write(p) is len(p):
         print(f'sent {len(p)} values')
-        # return values
-        sleep(.3)
-        if s.in_waiting:
-            result = s.read(s.in_waiting)
-            if result[-1] is 0:
-                results = result.split(b'\x00')
-                results = results[:-1]
-                for r in results:
-                    decoded = cobs.decode(r)
-                    values = [d for d in decoded]
-                    return values
-            else: print(f'no packet found. {result}')
-        else:
-            print('sent!')
-    else: print("didn't write all values")
+        return values
+    #     sleep(.3)
+    #     if s.in_waiting:
+    #         result = s.read(s.in_waiting)
+    #         if result[-1] is 0:
+    #             results = result.split(b'\x00')
+    #             results = results[:-1]
+    #             for r in results:
+    #                 decoded = cobs.decode(r)
+    #                 values = [d for d in decoded]
+    #                 return values
+    #         else: print(f'no packet found. {result}')
+    #     else:
+    #         print('sent!')
+    # else: print("didn't write all values")

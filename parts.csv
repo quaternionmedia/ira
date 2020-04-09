@@ -1,7 +1,7 @@
 part, quantity, description
-Arduino MEGA, 1,
-Arduino Nano, 1,
-RaspberryPi 3B+, 1,
+Arduino MEGA, 1
+Arduino Nano, 1
+RaspberryPi 3B+, 1
 16 gauge AWG stranded wire, ?, for power lines
 22 gauge AWG solid wire, ?, for ground return to arduino
 WS2813 LED strips - 5m - 60/m, 4, Individually controllable LED lights
@@ -9,11 +9,11 @@ WS2813 LED strips - 5m - 60/m, 4, Individually controllable LED lights
 5v 2a power supply, 1, power supply for pi + arduinos
 NME0505SC, 1, 5v to 5v dc galvinic isolator
 6N137, 1, optical isolator
-100nF capacitor, 5,
-4.7k resistor, 3,
-470 resistor, 1,
-330 resistor, 1,
-Female DMX to 3 pin connector, 1,
-USB B, 1,
+100nF capacitor, 5
+4.7k resistor, 3
+470 resistor, 1
+330 resistor, 1
+Female DMX to 3 pin connector, 1
+USB B, 1
 miniUSB B, 1
 microUSB B, 1

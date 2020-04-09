@@ -1,3 +1,6 @@
+import sys
+sys.path.insert(1, '/home/harpo/python-osc')
+
 import argparse
 import math
 
