@@ -1,31 +1,6 @@
-#include <FastLED.h>
+ #include "ira.h"
+ #include "fx.h"
 
-#define BAUD 115200
-#define STATUS_LED 13
-
-#define NUM_STRIPS 1
-#define LED_COUNT 300
-#define LED_PIN 15
-CRGB color = CRGB( 0, 0, 24 );
-CHSV colorHSV;
-int pos = 0;
-int lpos = pos;
-fract8 posFract = 0;
-fract8 lposFract = posFract;
-volatile uint8_t hue = 0;
-fract8 hueFract = 0;
-int delta = 0;
-
-uint8_t SPEED = 200;
-uint8_t HUE_SPEED = 0;
-uint8_t EYESIZE = 20;
-uint8_t ARG = 255;
-
-uint8_t fx;
-
-
-
-CRGBArray <LED_COUNT> LED;
 
 void setup() {
   pinMode(LED_PIN, OUTPUT);
@@ -33,7 +8,7 @@ void setup() {
   digitalWrite(STATUS_LED, HIGH);
   Serial.begin(BAUD);
   analogWriteResolution(8);
-  LEDS.addLeds<NUM_STRIPS, WS2812B, LED_PIN, GRB>(LED, LED_COUNT);
+  FastLED.addLeds<NUM_STRIPS, WS2812B, LED_PIN, GRB>(LED, LED_COUNT);
 
 
 }
@@ -44,13 +19,26 @@ void loop() {
     fx = Serial.read();
     Serial.print(fx);
    }
-   switch (fx) {
-      case 0: wash();
-//      Serial.println("washing");
-      break;
-      case 1: newCylon();
-//      Serial.println("cylon");
-      break;
+   if (fx < 25) {
+    wash();
+   } else if (fx >= 25 && fx < 51) {
+    newCylon();
+    } else if (fx >= 51 && fx < 76) {
+    marquee();
+    } else if (fx >= 76 && fx < 102) {
+    wipe();
+    } else if (fx >= 102 && fx < 127) {
+    waves();
+    } else if (fx >= 127 && fx < 153) {
+    newRainbow();
+    } else if (fx >= 153 && fx < 178) {
+    glitter();
+    } else if (fx >= 178 && fx < 204) {
+    chaser();
+    } else if (fx >= 204 && fx < 229) {
+    hueCycle();
+    } else if (fx >= 229) {
+//    progress();
     }
   delayMicroseconds(200);
   
