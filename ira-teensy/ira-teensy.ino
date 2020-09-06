@@ -3,10 +3,10 @@
 #define BAUD 115200
 #define STATUS_LED 13
 
-
+#define NUM_STRIPS 1
 #define LED_COUNT 300
 #define LED_PIN 15
-CRGB color = CRGB( 255, 255, 254 );
+CRGB color = CRGB( 0, 0, 24 );
 CHSV colorHSV;
 int pos = 0;
 int lpos = pos;
@@ -19,7 +19,7 @@ int delta = 0;
 uint8_t SPEED = 200;
 uint8_t HUE_SPEED = 0;
 uint8_t EYESIZE = 20;
-uint8_t ARG = 10;
+uint8_t ARG = 255;
 
 uint8_t fx;
 
@@ -99,7 +99,7 @@ void setup() {
   digitalWrite(STATUS_LED, HIGH);
   Serial.begin(BAUD);
   analogWriteResolution(8);
-  LEDS.addLeds<WS2812, LED_PIN, GRB>(LED, LED_COUNT);
+  LEDS.addLeds<NUM_STRIPS, WS2812B, LED_PIN, GRB>(LED, LED_COUNT);
 
 
 }
@@ -118,7 +118,7 @@ void loop() {
 //      Serial.println("cylon");
       break;
     }
-  delay(10);
+  delayMicroseconds(200);
   
 
   positionIncrement();
