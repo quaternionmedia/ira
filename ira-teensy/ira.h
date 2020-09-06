@@ -20,4 +20,14 @@ uint8_t DMX[DMX_CHANNELS];
 PacketSerial pSerial;
 #define PSERIAL_BAUD 115200
 
+void onSerial(const uint8_t *buffer, size_t size) {
+  memcpy(DMX, &buffer, min(size, DMX_CHANNELS));
+
+//    analogWrite(STATUS_LED, buffer[0]);
+  if (DEBUG) {
+     pSerial.send(buffer, size);
+  }
+  NEWS = true;
+
+}
 #endif

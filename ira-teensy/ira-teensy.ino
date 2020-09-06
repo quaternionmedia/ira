@@ -6,7 +6,8 @@ void setup() {
   pinMode(LED_PIN, OUTPUT);
   pinMode(STATUS_LED, OUTPUT);
   digitalWrite(STATUS_LED, HIGH);
-  Serial.begin(BAUD);
+  pSerial.begin(BAUD);
+  pSerial.setPacketHandler(&onSerial);
   analogWriteResolution(8);
   FastLED.addLeds<NUM_STRIPS, WS2812B, LED_PIN, GRB>(LED, LED_COUNT);
 
@@ -14,11 +15,18 @@ void setup() {
 }
 
 void loop() {
-  analogWrite(STATUS_LED, fx);
-   if (Serial.available()) {
-    fx = Serial.read();
-    Serial.print(fx);
+   pSerial.update();
+   if (NEWS) {
+    fx = DMX[0];
+    color = CRGB( DMX[1], DMX[2], DMX[3] );
+    SPEED = DMX[4];
+    HUE_SPEED = DMX[5];
+    EYESIZE = DMX[6];
+    ARG = DMX[7];
+    
+    NEWS = false;
    }
+   analogWrite(STATUS_LED, fx);
    if (fx < 25) {
     wash();
    } else if (fx >= 25 && fx < 51) {

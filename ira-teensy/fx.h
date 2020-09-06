@@ -237,15 +237,5 @@ void hueCycle() {
 
 }
 
-void onSerial(const uint8_t *buffer, size_t size) {
-  memcpy(DMX, &buffer, min(size, DMX_CHANNELS));
-
-//    analogWrite(STATUS_LED, buffer[0]);
-  if (DEBUG) {
-     pSerial.send(buffer, size);
-  }
-  NEWS = true;
-
-}
 
 #endif
