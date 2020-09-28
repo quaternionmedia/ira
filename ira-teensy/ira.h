@@ -21,11 +21,11 @@ PacketSerial pSerial;
 #define PSERIAL_BAUD 115200
 
 void onSerial(const uint8_t *buffer, size_t size) {
-  memcpy(DMX, &buffer, min(size, DMX_CHANNELS));
+  memcpy(DMX, buffer, min(size, DMX_CHANNELS));
 
-//    analogWrite(STATUS_LED, buffer[0]);
+    analogWrite(STATUS_LED, DMX[0]);
   if (DEBUG) {
-     pSerial.send(buffer, size);
+     pSerial.send(DMX, DMX_CHANNELS);
   }
   NEWS = true;
 
