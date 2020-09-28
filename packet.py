@@ -16,7 +16,7 @@ def send(*values):
     if s.write(p) == len(p):
         print(f'sent {len(p)} values')
         # return values
-        sleep(.3)
+        # sleep(.3)
         if s.in_waiting:
             result = s.read(s.in_waiting)
             if result[-1] == 0:
@@ -25,7 +25,7 @@ def send(*values):
                 for r in results:
                     decoded = cobs.decode(r)
                     values = [d for d in decoded]
-                    return values
+                    print('decoded packet', values)
             else: print(f'no packet found. {result}')
         else:
             print('sent!')

@@ -4,7 +4,7 @@ from fastapi import FastAPI, Query
 from starlette.responses import HTMLResponse
 from starlette.staticfiles import StaticFiles
 from starlette.templating import Jinja2Templates
-from async_exec import run
+# from async_exec import run
 from typing import List, Tuple
 from requests import post
 from json import dumps
@@ -18,7 +18,7 @@ app = FastAPI(template_directory='templates')
 templates = Jinja2Templates('templates')
 current = ''
 
-channels = ['program', 'red', 'green', 'blue', 'speed', 'eyesize', 'arg1', 'arg2']
+channels = ['program', 'red', 'green', 'blue', 'speed', 'hue', 'eyesize', 'tail']
 
 @app.get('/ira')
 async def ira(program: List[int] = Query(None)):
@@ -29,14 +29,14 @@ async def ira(program: List[int] = Query(None)):
     # else: return resp.status_code
     return packet.send(*program)
 
-@app.get('/upload')
-async def upload():
-    arduinoType = 'nano:cpu=atmega328old'
-    compiled = f'arduino-cli compile -b arduino:avr:{arduinoType} generator'
-    results = await run(compiled.split(' '))
-    uploaded = f'arduino-cli upload -b arduino:avr:{arduinoType} -p /dev/tty.usbserial-1430 -v generator'
-    results += await run(uploaded.split(' '))
-    return results
+# @app.get('/upload')
+# async def upload():
+#     arduinoType = 'nano:cpu=atmega328old'
+#     compiled = f'arduino-cli compile -b arduino:avr:{arduinoType} generator'
+#     results = await run(compiled.split(' '))
+#     uploaded = f'arduino-cli upload -b arduino:avr:{arduinoType} -p /dev/tty.usbserial-1430 -v generator'
+#     results += await run(uploaded.split(' '))
+#     return results
 
 @app.get('/')
 async def home():
