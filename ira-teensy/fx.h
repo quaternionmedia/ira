@@ -1,6 +1,16 @@
 
 #ifndef FX
 #define FX
+
+#ifndef ARDUINO
+int max(int a, int b) {
+  return a > b ? a : b;
+}
+int min(int a, int b) {
+  return a > b ? a : b;
+}
+#endif
+
 #include "ira.h"
 
 #include <FastLED.h>
@@ -164,12 +174,7 @@ void rainbow() {
   FastLED.show();
   //  fadeall();
 }
-int max(int a, int b) {
-  return a > b ? a : b;
-}
-int min(int a, int b) {
-  return a > b ? a : b;
-}
+
 void newRainbow() {
   uint8_t thisHue = hue;
   //  int i = 0;
