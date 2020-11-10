@@ -1,6 +1,23 @@
  #include "ira.h"
  #include "fx.h"
+PacketSerial pSerial;
 
+void wait(int t) {
+  unsigned long endTime = millis() + t;
+  while (millis() <= endTime) {
+    pSerial.update();
+  }
+}
+void onSerial(const uint8_t *buffer, size_t size) {
+  memcpy(DMX, buffer, min(size, DMX_CHANNELS));
+
+    analogWrite(STATUS_LED, DMX[0]);
+  if (DEBUG) {
+     pSerial.send(DMX, DMX_CHANNELS);
+  }
+  NEWS = true;
+
+}
 
 void setup() {
   pinMode(LED_PIN, OUTPUT);
@@ -8,8 +25,8 @@ void setup() {
   digitalWrite(STATUS_LED, HIGH);
   pSerial.begin(BAUD);
   pSerial.setPacketHandler(&onSerial);
-  analogWriteResolution(8);
-  FastLED.addLeds<NUM_STRIPS, WS2812B, LED_PIN, GRB>(LED, LED_COUNT);
+//  analogWriteResolution(8);
+  FastLED.addLeds<WS2812B, LED_PIN, RGB>(LED, LED_COUNT);
 
 
 }
@@ -48,7 +65,7 @@ void loop() {
     } else if (fx >= 229) {
 //    progress();
     }
-  delayMicroseconds(200);
+//  delayMicroseconds(200);
   
 
   positionIncrement();
